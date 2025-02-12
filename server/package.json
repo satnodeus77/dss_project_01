@@ -1,13 +1,18 @@
 {
-  "name": "dss-project",
+  "name": "dss-project-server",
   "version": "1.0.0",
-  "private": true,
+  "main": "index.js",
   "scripts": {
-    "start": "cd server && npm install && npm start",
-    "heroku-postbuild": "cd client && npm install && npm run build"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
-  "engines": {
-    "node": "18.x",
-    "npm": "8.x"
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.17.1",
+    "firebase-admin": "^10.0.0",
+    "pg": "^8.13.2",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.6.5"
   }
 }
