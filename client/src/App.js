@@ -14,8 +14,11 @@ function App() {
       const result = await signInWithPopup(auth, provider);
       const token = await result.user.getIdToken();
 
-      const res = await axios.post("/api/auth/login", {}, {
-        headers: { Authorization: `Bearer ${token}` }
+      // Use the global API URL
+      const API_BASE_URL = window.API_BASE_URL;
+
+      const res = await axios.post(`${API_BASE_URL}/api/auth/login`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       setUser(res.data);
