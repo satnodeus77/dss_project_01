@@ -13,12 +13,14 @@
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
-  "production": {
-    "username": "root",
-    "password": null,
-    "database": "database_production",
-    "use_env_variable": "postgres://u5f11gkagg1he4:pe586fd730f88670050070bc9e1c91f430e6d576373dfac48c278bda8a7f0d2e3@c5p86clmevrg5s.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/dbmo9as5qhr4kb",
-    "host": "127.0.0.1",
-    "dialect": "postgres"
+"production": {
+  "use_env_variable": "DATABASE_URL",
+  "dialect": "postgres",
+  "dialectOptions": {
+    "ssl": {
+      "require": true,
+      "rejectUnauthorized": false
+    }
   }
+}
 }
