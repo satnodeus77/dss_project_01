@@ -43,10 +43,12 @@ export default function HomePage() {
         backgroundPosition: "center",
         display: "flex",
         flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
       }}
     >
-      {/* User Profile and Logout Button */}
-      <Box sx={{ display: "flex", justifyContent: "flex-end", p: 2 }}>
+      {/* User Profile & Logout Button (Top Right) */}
+      <Box sx={{ position: "absolute", top: 16, right: 16, display: "flex", alignItems: "center" }}>
         {user && (
           <>
             <IconButton onClick={handleMenuOpen} sx={{ display: "flex", alignItems: "center" }}>
@@ -68,18 +70,28 @@ export default function HomePage() {
         )}
       </Box>
 
-      {/* Homepage Content */}
-      <Container>
-        <Typography variant="h3" sx={{ color: "#0047AB", fontWeight: "bold", textAlign: "center", mt: 4, textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)" }}>
+      {/* Content with Blur Background */}
+      <Box
+        sx={{
+          backgroundColor: "rgba(0, 0, 0, 0.6)", // Semi-transparent dark background
+          backdropFilter: "blur(10px)", // Blur effect
+          padding: "2rem",
+          borderRadius: "8px",
+          textAlign: "center",
+          color: "white",
+          maxWidth: "90%",
+        }}
+      >
+        <Typography variant="h3" sx={{ fontWeight: "bold", color: "#FFD700" }}>
           Welcome to DSS Project MMI
         </Typography>
 
-        <Typography variant="h6" sx={{ color: "#FFD700", textAlign: "center", mt: 2, fontWeight: "bold" }}>
+        <Typography variant="h6" sx={{ mt: 2, fontWeight: "bold", color: "#FFFFFF" }}>
           24/546050/PPA/06833 - Aziz Hendra Atmadja <br />
           24/548101/PPA/06919 - Marta Zuriadi <br />
           24/548140/PPA/06921 - Silvanus Satno Nugraha
         </Typography>
-      </Container>
+      </Box>
     </Box>
   );
 }
