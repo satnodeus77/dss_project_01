@@ -14,10 +14,9 @@ import CalculateIcon from "@mui/icons-material/Calculate";
 export default function HomePage() {
   const [user, setUser] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [method, setMethod] = useState("SAW"); // Default method
+  const [method, setMethod] = useState("SAW");
   const [criteria, setCriteria] = useState([{ name: "", type: "Benefit", weight: "" }]);
-  const [alternatives, setAlternatives] = useState([{ name: "", values: [] }]);
-  const [results, setResults] = useState([]);
+  const [alternatives, setAlternatives] = useState([]);
 
   const router = useRouter();
 
@@ -56,9 +55,16 @@ export default function HomePage() {
     const updatedCriteria = [...criteria];
     updatedCriteria.splice(index, 1);
     setCriteria(updatedCriteria);
+
+    // Remove corresponding values from each alternative
+    const updatedAlternatives = alternatives.map((alt) => {
+      alt.values.splice(index, 1);
+      return alt;
+    });
+    setAlternatives(updatedAlternatives);
   };
 
-  // Add an alternative
+  // Add an alternative (each alternative has one value per criterion)
   const addAlternative = () => {
     setAlternatives([...alternatives, { name: "", values: Array(criteria.length).fill("") }]);
   };
@@ -77,7 +83,7 @@ export default function HomePage() {
     setAlternatives(updatedAlternatives);
   };
 
-  // Calculate results (Placeholder for SAW/TOPSIS/WP)
+  // Calculate results (Placeholder for SAW/TOPSIS/WP logic)
   const calculateResults = () => {
     // TODO: Implement actual SAW, TOPSIS, WP logic
     setResults([
@@ -137,16 +143,6 @@ export default function HomePage() {
           Decision Support System Framework
         </Typography>
 
-        {/* Method Selection */}
-        <FormControl fullWidth sx={{ mb: 2 }}>
-          <InputLabel>DSS Method</InputLabel>
-          <Select value={method} onChange={(e) => setMethod(e.target.value)}>
-            <MenuItem value="SAW">Simple Additive Weighted (SAW)</MenuItem>
-            <MenuItem value="TOPSIS">Technique for Order Preference by Similarity to Ideal Solution (TOPSIS)</MenuItem>
-            <MenuItem value="WP">Weighted Product Model (WP)</MenuItem>
-          </Select>
-        </FormControl>
-
         {/* Alternatives Table */}
         <Typography variant="h6" sx={{ mt: 3 }}>Alternatives</Typography>
         <TableContainer component={Paper} sx={{ mb: 2 }}>
@@ -185,19 +181,3 @@ export default function HomePage() {
                   ))}
                   <TableCell>
                     <IconButton color="error" onClick={() => removeAlternative(altIndex)}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-
-        <Button fullWidth startIcon={<CalculateIcon />} variant="contained" sx={{ mt: 3 }} onClick={calculateResults}>
-          Calculate Results
-        </Button>
-      </Container>
-    </Box>
-  );
-}
