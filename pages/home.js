@@ -97,7 +97,7 @@ export default function HomePage() {
 
   // Calculate results (Placeholder for SAW/TOPSIS/WP logic)
   const calculateResults = () => {
-    console.log("Calculating results...");
+    console.log(`Calculating results using method: ${method}`);
   };
 
   return (
@@ -150,6 +150,16 @@ export default function HomePage() {
           Decision Support System Framework
         </Typography>
 
+        {/* DSS Method Selection */}
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel>Decision Support Method</InputLabel>
+          <Select value={method} onChange={(e) => setMethod(e.target.value)}>
+            <MenuItem value="SAW">Simple Additive Weighting (SAW)</MenuItem>
+            <MenuItem value="TOPSIS">Technique for Order Preference by Similarity to Ideal Solution (TOPSIS)</MenuItem>
+            <MenuItem value="WP">Weighted Product Model (WP)</MenuItem>
+          </Select>
+        </FormControl>
+
         {/* Criteria Section */}
         <Typography variant="h6">Criteria</Typography>
         {criteria.map((c, index) => (
@@ -179,53 +189,32 @@ export default function HomePage() {
         ))}
         <Button startIcon={<AddIcon />} onClick={addCriterion}>Add Criteria</Button>
 
-        {/* Alternatives Table */}
+        {/* Alternatives Section */}
         <Typography variant="h6" sx={{ mt: 3 }}>Alternatives</Typography>
+        <Button startIcon={<AddIcon />} sx={{ mb: 2 }} onClick={addAlternative}>Add Alternative</Button>
+
         <TableContainer component={Paper} sx={{ mb: 2 }}>
           <Table>
             <TableHead>
               <TableRow>
                 <TableCell>Alternative Name</TableCell>
-                {criteria.map((c, index) => (
-                  <TableCell key={index}>{c.name || `Criteria ${index + 1}`}</TableCell>
-                ))}
+                {criteria.map((c, index) => <TableCell key={index}>{c.name || `Criteria ${index + 1}`}</TableCell>)}
                 <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {alternatives.map((alt, altIndex) => (
                 <TableRow key={altIndex}>
-                  <TableCell>
-                    <TextField
-                      fullWidth
-                      value={alt.name}
-                      onChange={(e) => updateAlternativeName(altIndex, e.target.value)}
-                    />
-                  </TableCell>
-                  {criteria.map((_, critIndex) => (
-                    <TableCell key={critIndex}>
-                      <TextField
-                        type="number"
-                        value={alt.values[critIndex] || ""}
-                        onChange={(e) => updateAlternativeValue(altIndex, critIndex, e.target.value)}
-                      />
-                    </TableCell>
-                  ))}
-                  <TableCell>
-                    <IconButton color="error" onClick={() => removeAlternative(altIndex)}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
+                  <TableCell><TextField fullWidth value={alt.name} onChange={(e) => updateAlternativeName(altIndex, e.target.value)} /></TableCell>
+                  {criteria.map((_, critIndex) => <TableCell key={critIndex}><TextField type="number" /></TableCell>)}
+                  <TableCell><IconButton color="error"><DeleteIcon /></IconButton></TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
 
-        <Button fullWidth startIcon={<CalculateIcon />} variant="contained" onClick={calculateResults}>
-          Calculate Results
-        </Button>
-        <Button startIcon={<AddIcon />} onClick={addAlternative}>Add Alternative</Button>
+        <Button fullWidth startIcon={<CalculateIcon />} variant="contained" onClick={calculateResults}>Calculate Results</Button>
       </Container>
     </Box>
   );
