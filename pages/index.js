@@ -1,30 +1,30 @@
 import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import { auth, provider, signInWithPopup } from "../lib/firebase";
 import { Container, Box, Typography, Button, Paper } from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google";
-import Image from "next/image";
 
 export default function Home() {
   const [user, setUser] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
     auth.onAuthStateChanged((currentUser) => {
-      setUser(currentUser);
+      if (currentUser) {
+        setUser(currentUser);
+        router.push("/home"); // ✅ Redirect to homepage after login
+      }
     });
-  }, []);
+  }, [router]);
 
   const loginWithGoogle = async () => {
     try {
-      await signInWithPopup(auth, provider);
-      router.push("/home"); // Redirect to homepage after login
+      const result = await signInWithPopup(auth, provider);
+      setUser(result.user);
+      router.push("/home"); // ✅ Redirect after login
     } catch (error) {
       console.error("Login Error", error);
     }
-  };
-  
-  const logout = () => {
-    auth.signOut();
-    setUser(null);
   };
 
   return (
@@ -44,21 +44,14 @@ export default function Home() {
           <Typography variant="h3" sx={{ fontWeight: "bold", color: "blue" }}>
             DSS Project MMI
           </Typography>
-
           <Typography variant="body1" color="textSecondary" sx={{ mt: 2 }}>
             Sign in to continue
           </Typography>
 
           {user ? (
-            <Box mt={3}>
-              <Typography variant="h6">{user.displayName}</Typography>
-              <Typography variant="body2" color="textSecondary">
-                {user.email}
-              </Typography>
-              <Button variant="contained" color="error" onClick={logout} fullWidth sx={{ mt: 2 }}>
-                Logout
-              </Button>
-            </Box>
+            <Typography variant="h6" sx={{ mt: 2 }}>
+              Redirecting to homepage...
+            </Typography>
           ) : (
             <Button
               variant="contained"
@@ -71,9 +64,6 @@ export default function Home() {
                 py: 1.5,
                 fontSize: "1rem",
                 fontWeight: "bold",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
               }}
             >
               Sign in with Google
