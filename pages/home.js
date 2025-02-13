@@ -70,11 +70,14 @@ export default function HomePage() {
 
       {/* Homepage Content */}
       <Container>
-        <Typography variant="h3" sx={{ color: "white", fontWeight: "bold", textAlign: "center", mt: 4 }}>
+        <Typography variant="h3" sx={{ color: "#0047AB", fontWeight: "bold", textAlign: "center", mt: 4, textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)" }}>
           Welcome to DSS Project MMI
         </Typography>
-        <Typography variant="h6" sx={{ color: "white", textAlign: "center", mt: 2 }}>
-          Your decision support system starts here.
+
+        <Typography variant="h6" sx={{ color: "#FFD700", textAlign: "center", mt: 2, fontWeight: "bold" }}>
+          24/546050/PPA/06833 - Aziz Hendra Atmadja <br />
+          24/548101/PPA/06919 - Marta Zuriadi <br />
+          24/548140/PPA/06921 - Silvanus Satno Nugraha
         </Typography>
       </Container>
     </Box>
