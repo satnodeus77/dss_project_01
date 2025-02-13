@@ -3,7 +3,8 @@ import { auth } from "../lib/firebase";
 import { useRouter } from "next/router";
 import {
   Box, Container, Typography, IconButton, Menu, MenuItem, Avatar,
-  Select, TextField, Button, Card, CardContent, Grid, FormControl, InputLabel
+  Select, TextField, Button, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, FormControl, InputLabel, Paper
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AddIcon from "@mui/icons-material/Add";
@@ -59,7 +60,7 @@ export default function HomePage() {
 
   // Add an alternative
   const addAlternative = () => {
-    setAlternatives([...alternatives, { name: "", values: [] }]);
+    setAlternatives([...alternatives, { name: "", values: Array(criteria.length).fill("") }]);
   };
 
   // Remove an alternative
@@ -69,7 +70,14 @@ export default function HomePage() {
     setAlternatives(updatedAlternatives);
   };
 
-  // Calculate results (dummy function)
+  // Update a specific alternative value
+  const updateAlternativeValue = (altIndex, critIndex, value) => {
+    const updatedAlternatives = [...alternatives];
+    updatedAlternatives[altIndex].values[critIndex] = value;
+    setAlternatives(updatedAlternatives);
+  };
+
+  // Calculate results (Placeholder for SAW/TOPSIS/WP)
   const calculateResults = () => {
     // TODO: Implement actual SAW, TOPSIS, WP logic
     setResults([
@@ -139,52 +147,53 @@ export default function HomePage() {
           </Select>
         </FormControl>
 
-        {/* Criteria Section */}
-        <Typography variant="h6" sx={{ mt: 2 }}>Criteria</Typography>
-        {criteria.map((c, index) => (
-          <Box key={index} sx={{ display: "flex", gap: 2, mb: 1 }}>
-            <TextField fullWidth label="Criteria Name" value={c.name} onChange={(e) => {
-              const newCriteria = [...criteria];
-              newCriteria[index].name = e.target.value;
-              setCriteria(newCriteria);
-            }} />
-            <Select value={c.type} onChange={(e) => {
-              const newCriteria = [...criteria];
-              newCriteria[index].type = e.target.value;
-              setCriteria(newCriteria);
-            }}>
-              <MenuItem value="Benefit">Benefit</MenuItem>
-              <MenuItem value="Cost">Cost</MenuItem>
-            </Select>
-            <TextField type="number" label="Weight" value={c.weight} onChange={(e) => {
-              const newCriteria = [...criteria];
-              newCriteria[index].weight = e.target.value;
-              setCriteria(newCriteria);
-            }} />
-            <IconButton color="error" onClick={() => removeCriterion(index)}>
-              <DeleteIcon />
-            </IconButton>
-          </Box>
-        ))}
-        <Button startIcon={<AddIcon />} onClick={addCriterion}>Add Criteria</Button>
-
-        {/* Alternative Section */}
+        {/* Alternatives Table */}
         <Typography variant="h6" sx={{ mt: 3 }}>Alternatives</Typography>
-        {alternatives.map((a, index) => (
-          <Box key={index} sx={{ display: "flex", gap: 2, mb: 1 }}>
-            <TextField fullWidth label="Alternative Name" value={a.name} onChange={(e) => {
-              const newAlternatives = [...alternatives];
-              newAlternatives[index].name = e.target.value;
-              setAlternatives(newAlternatives);
-            }} />
-            <IconButton color="error" onClick={() => removeAlternative(index)}>
-              <DeleteIcon />
-            </IconButton>
-          </Box>
-        ))}
-        <Button startIcon={<AddIcon />} onClick={addAlternative}>Add Alternative</Button>
+        <TableContainer component={Paper} sx={{ mb: 2 }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Alternative Name</TableCell>
+                {criteria.map((c, index) => (
+                  <TableCell key={index}>{c.name || `Criteria ${index + 1}`}</TableCell>
+                ))}
+                <TableCell>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {alternatives.map((alt, altIndex) => (
+                <TableRow key={altIndex}>
+                  <TableCell>
+                    <TextField
+                      fullWidth
+                      value={alt.name}
+                      onChange={(e) => {
+                        const updatedAlternatives = [...alternatives];
+                        updatedAlternatives[altIndex].name = e.target.value;
+                        setAlternatives(updatedAlternatives);
+                      }}
+                    />
+                  </TableCell>
+                  {criteria.map((_, critIndex) => (
+                    <TableCell key={critIndex}>
+                      <TextField
+                        type="number"
+                        value={alt.values[critIndex] || ""}
+                        onChange={(e) => updateAlternativeValue(altIndex, critIndex, e.target.value)}
+                      />
+                    </TableCell>
+                  ))}
+                  <TableCell>
+                    <IconButton color="error" onClick={() => removeAlternative(altIndex)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
-        {/* Calculate Results */}
         <Button fullWidth startIcon={<CalculateIcon />} variant="contained" sx={{ mt: 3 }} onClick={calculateResults}>
           Calculate Results
         </Button>
