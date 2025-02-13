@@ -14,7 +14,7 @@
     "@mui/material": "^6.4.4",
     "firebase": "latest",
     "next": "latest",
-    "pg": "latest",
+    "pg": "^8.13.3",
     "react": "latest",
     "react-dom": "latest"
   },
