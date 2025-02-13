@@ -16,11 +16,12 @@ export default function Home() {
   const loginWithGoogle = async () => {
     try {
       await signInWithPopup(auth, provider);
+      router.push("/home"); // Redirect to homepage after login
     } catch (error) {
       console.error("Login Error", error);
     }
   };
-
+  
   const logout = () => {
     auth.signOut();
     setUser(null);
