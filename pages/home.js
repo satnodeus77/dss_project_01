@@ -69,7 +69,7 @@ export default function HomePage() {
     }));
   };
 
-  // Add an alternative (each alternative has one value per criterion)
+  // Add an alternative
   const addAlternative = () => {
     setAlternatives([...alternatives, { name: "", values: Array(criteria.length).fill("") }]);
   };
@@ -97,7 +97,6 @@ export default function HomePage() {
 
   // Calculate results (Placeholder for SAW/TOPSIS/WP logic)
   const calculateResults = () => {
-    // TODO: Implement actual SAW, TOPSIS, WP logic
     console.log("Calculating results...");
   };
 
@@ -226,6 +225,7 @@ export default function HomePage() {
         <Button fullWidth startIcon={<CalculateIcon />} variant="contained" onClick={calculateResults}>
           Calculate Results
         </Button>
+        <Button startIcon={<AddIcon />} onClick={addAlternative}>Add Alternative</Button>
       </Container>
     </Box>
   );
