@@ -43,8 +43,6 @@ export default function HomePage() {
         backgroundPosition: "center",
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
       }}
     >
       {/* User Profile & Logout Button (Top Right) */}
@@ -70,28 +68,38 @@ export default function HomePage() {
         )}
       </Box>
 
-      {/* Content with Blur Background */}
+      {/* Sticky Header with Text Aligned to User Info */}
       <Box
         sx={{
-          backgroundColor: "rgba(0, 0, 0, 0.6)", // Semi-transparent dark background
-          backdropFilter: "blur(10px)", // Blur effect
-          padding: "2rem",
+          position: "sticky",
+          top: 0,
+          zIndex: 10,
+          backgroundColor: "rgba(0, 0, 0, 0.6)",
+          backdropFilter: "blur(10px)",
+          padding: "1.5rem",
           borderRadius: "8px",
-          textAlign: "center",
+          textAlign: "right", // Align with user profile
           color: "white",
           maxWidth: "90%",
+          margin: "auto",
+          mt: 2,
         }}
       >
-        <Typography variant="h3" sx={{ fontWeight: "bold", color: "#FFD700" }}>
+        <Typography variant="h4" sx={{ fontWeight: "bold", color: "#FFD700", fontSize: "1.8rem" }}>
           Welcome to DSS Project MMI
         </Typography>
 
-        <Typography variant="h6" sx={{ mt: 2, fontWeight: "bold", color: "#FFFFFF" }}>
+        <Typography variant="h6" sx={{ fontSize: "1.2rem", fontWeight: "bold", color: "#FFFFFF" }}>
           24/546050/PPA/06833 - Aziz Hendra Atmadja <br />
           24/548101/PPA/06919 - Marta Zuriadi <br />
           24/548140/PPA/06921 - Silvanus Satno Nugraha
         </Typography>
       </Box>
+
+      {/* Placeholder for More Content Below */}
+      <Container sx={{ mt: 8, textAlign: "center", color: "white" }}>
+        <Typography variant="h5">More content will be added here...</Typography>
+      </Container>
     </Box>
   );
 }
