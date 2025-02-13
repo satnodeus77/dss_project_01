@@ -49,7 +49,7 @@ export default function HomePage() {
   const addCriterion = () => {
     setCriteria([...criteria, { name: "", type: "Benefit", weight: "" }]);
 
-    // Add an empty value for each alternative
+    // Add an empty value for each alternative when a new criterion is added
     setAlternatives(alternatives.map(alt => ({
       ...alt,
       values: [...alt.values, ""]
@@ -69,7 +69,7 @@ export default function HomePage() {
     }));
   };
 
-  // Add an alternative
+  // Add an alternative (each alternative has one value per criterion)
   const addAlternative = () => {
     setAlternatives([...alternatives, { name: "", values: Array(criteria.length).fill("") }]);
   };
@@ -78,6 +78,13 @@ export default function HomePage() {
   const removeAlternative = (index) => {
     const updatedAlternatives = [...alternatives];
     updatedAlternatives.splice(index, 1);
+    setAlternatives(updatedAlternatives);
+  };
+
+  // Update an alternative name
+  const updateAlternativeName = (index, value) => {
+    const updatedAlternatives = [...alternatives];
+    updatedAlternatives[index].name = value;
     setAlternatives(updatedAlternatives);
   };
 
@@ -91,11 +98,7 @@ export default function HomePage() {
   // Calculate results (Placeholder for SAW/TOPSIS/WP logic)
   const calculateResults = () => {
     // TODO: Implement actual SAW, TOPSIS, WP logic
-    setResults([
-      { name: "Roni", score: 0.98, rank: 1 },
-      { name: "Ayu", score: 0.81, rank: 2 },
-      { name: "Ani", score: 0.26, rank: 3 }
-    ]);
+    console.log("Calculating results...");
   };
 
   return (
@@ -193,11 +196,27 @@ export default function HomePage() {
             <TableBody>
               {alternatives.map((alt, altIndex) => (
                 <TableRow key={altIndex}>
-                  <TableCell><TextField fullWidth value={alt.name} /></TableCell>
+                  <TableCell>
+                    <TextField
+                      fullWidth
+                      value={alt.name}
+                      onChange={(e) => updateAlternativeName(altIndex, e.target.value)}
+                    />
+                  </TableCell>
                   {criteria.map((_, critIndex) => (
-                    <TableCell key={critIndex}><TextField type="number" /></TableCell>
+                    <TableCell key={critIndex}>
+                      <TextField
+                        type="number"
+                        value={alt.values[critIndex] || ""}
+                        onChange={(e) => updateAlternativeValue(altIndex, critIndex, e.target.value)}
+                      />
+                    </TableCell>
                   ))}
-                  <TableCell><IconButton color="error"><DeleteIcon /></IconButton></TableCell>
+                  <TableCell>
+                    <IconButton color="error" onClick={() => removeAlternative(altIndex)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
