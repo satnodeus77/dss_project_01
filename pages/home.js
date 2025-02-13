@@ -48,6 +48,12 @@ export default function HomePage() {
   // Add a new criterion
   const addCriterion = () => {
     setCriteria([...criteria, { name: "", type: "Benefit", weight: "" }]);
+
+    // Add an empty value for each alternative
+    setAlternatives(alternatives.map(alt => ({
+      ...alt,
+      values: [...alt.values, ""]
+    })));
   };
 
   // Remove a criterion
@@ -57,14 +63,13 @@ export default function HomePage() {
     setCriteria(updatedCriteria);
 
     // Remove corresponding values from each alternative
-    const updatedAlternatives = alternatives.map((alt) => {
+    setAlternatives(alternatives.map(alt => {
       alt.values.splice(index, 1);
       return alt;
-    });
-    setAlternatives(updatedAlternatives);
+    }));
   };
 
-  // Add an alternative (each alternative has one value per criterion)
+  // Add an alternative
   const addAlternative = () => {
     setAlternatives([...alternatives, { name: "", values: Array(criteria.length).fill("") }]);
   };
@@ -76,7 +81,7 @@ export default function HomePage() {
     setAlternatives(updatedAlternatives);
   };
 
-  // Update a specific alternative value
+  // Update an alternative value
   const updateAlternativeValue = (altIndex, critIndex, value) => {
     const updatedAlternatives = [...alternatives];
     updatedAlternatives[altIndex].values[critIndex] = value;
@@ -143,6 +148,35 @@ export default function HomePage() {
           Decision Support System Framework
         </Typography>
 
+        {/* Criteria Section */}
+        <Typography variant="h6">Criteria</Typography>
+        {criteria.map((c, index) => (
+          <Box key={index} sx={{ display: "flex", gap: 2, mb: 1 }}>
+            <TextField fullWidth label="Criteria Name" value={c.name} onChange={(e) => {
+              const newCriteria = [...criteria];
+              newCriteria[index].name = e.target.value;
+              setCriteria(newCriteria);
+            }} />
+            <Select value={c.type} onChange={(e) => {
+              const newCriteria = [...criteria];
+              newCriteria[index].type = e.target.value;
+              setCriteria(newCriteria);
+            }}>
+              <MenuItem value="Benefit">Benefit</MenuItem>
+              <MenuItem value="Cost">Cost</MenuItem>
+            </Select>
+            <TextField type="number" label="Weight" value={c.weight} onChange={(e) => {
+              const newCriteria = [...criteria];
+              newCriteria[index].weight = e.target.value;
+              setCriteria(newCriteria);
+            }} />
+            <IconButton color="error" onClick={() => removeCriterion(index)}>
+              <DeleteIcon />
+            </IconButton>
+          </Box>
+        ))}
+        <Button startIcon={<AddIcon />} onClick={addCriterion}>Add Criteria</Button>
+
         {/* Alternatives Table */}
         <Typography variant="h6" sx={{ mt: 3 }}>Alternatives</Typography>
         <TableContainer component={Paper} sx={{ mb: 2 }}>
@@ -159,25 +193,21 @@ export default function HomePage() {
             <TableBody>
               {alternatives.map((alt, altIndex) => (
                 <TableRow key={altIndex}>
-                  <TableCell>
-                    <TextField
-                      fullWidth
-                      value={alt.name}
-                      onChange={(e) => {
-                        const updatedAlternatives = [...alternatives];
-                        updatedAlternatives[altIndex].name = e.target.value;
-                        setAlternatives(updatedAlternatives);
-                      }}
-                    />
-                  </TableCell>
+                  <TableCell><TextField fullWidth value={alt.name} /></TableCell>
                   {criteria.map((_, critIndex) => (
-                    <TableCell key={critIndex}>
-                      <TextField
-                        type="number"
-                        value={alt.values[critIndex] || ""}
-                        onChange={(e) => updateAlternativeValue(altIndex, critIndex, e.target.value)}
-                      />
-                    </TableCell>
+                    <TableCell key={critIndex}><TextField type="number" /></TableCell>
                   ))}
-                  <TableCell>
-                    <IconButton color="error" onClick={() => removeAlternative(altIndex)}>
+                  <TableCell><IconButton color="error"><DeleteIcon /></IconButton></TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        <Button fullWidth startIcon={<CalculateIcon />} variant="contained" onClick={calculateResults}>
+          Calculate Results
+        </Button>
+      </Container>
+    </Box>
+  );
+}
