@@ -68,7 +68,7 @@ export default function HomePage() {
         )}
       </Box>
 
-      {/* Sticky Header with Text Aligned to User Info */}
+      {/* Expanded Sticky Header */}
       <Box
         sx={{
           position: "sticky",
@@ -76,20 +76,20 @@ export default function HomePage() {
           zIndex: 10,
           backgroundColor: "rgba(0, 0, 0, 0.6)",
           backdropFilter: "blur(10px)",
-          padding: "1.5rem",
+          padding: "2rem", // Increased padding for better spacing
           borderRadius: "8px",
           textAlign: "right", // Align with user profile
           color: "white",
-          maxWidth: "90%",
+          maxWidth: "60%", // Expanded width
           margin: "auto",
           mt: 2,
         }}
       >
-        <Typography variant="h4" sx={{ fontWeight: "bold", color: "#FFD700", fontSize: "1.8rem" }}>
+        <Typography variant="h5" sx={{ fontWeight: "bold", color: "#FFD700", fontSize: "1.5rem" }}>
           Welcome to DSS Project MMI
         </Typography>
 
-        <Typography variant="h6" sx={{ fontSize: "1.2rem", fontWeight: "bold", color: "#FFFFFF" }}>
+        <Typography variant="h6" sx={{ fontSize: "1rem", fontWeight: "bold", color: "#FFFFFF", mt: 1 }}>
           24/546050/PPA/06833 - Aziz Hendra Atmadja <br />
           24/548101/PPA/06919 - Marta Zuriadi <br />
           24/548140/PPA/06921 - Silvanus Satno Nugraha
@@ -98,7 +98,7 @@ export default function HomePage() {
 
       {/* Placeholder for More Content Below */}
       <Container sx={{ mt: 8, textAlign: "center", color: "white" }}>
-        <Typography variant="h5">More content will be added here...</Typography>
+        <Typography variant="h6">Akan diupdate berikut...</Typography>
       </Container>
     </Box>
   );
