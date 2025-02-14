@@ -58,15 +58,13 @@ export default function HomePage() {
 
   // Remove a criterion
   const removeCriterion = (index) => {
-    const updatedCriteria = [...criteria];
-    updatedCriteria.splice(index, 1);
-    setCriteria(updatedCriteria);
+    setCriteria(criteria.filter((_, i) => i !== index));
 
     // Remove corresponding values from each alternative
-    setAlternatives(alternatives.map(alt => {
-      alt.values.splice(index, 1);
-      return alt;
-    }));
+    setAlternatives(alternatives.map(alt => ({
+      ...alt,
+      values: alt.values.filter((_, i) => i !== index)
+    })));
   };
 
   // Add an alternative
@@ -74,11 +72,9 @@ export default function HomePage() {
     setAlternatives([...alternatives, { name: "", values: Array(criteria.length).fill("") }]);
   };
 
-  // Remove an alternative
+  // ✅ Fixed: Remove an alternative
   const removeAlternative = (index) => {
-    const updatedAlternatives = [...alternatives];
-    updatedAlternatives.splice(index, 1);
-    setAlternatives(updatedAlternatives);
+    setAlternatives(alternatives.filter((_, i) => i !== index));
   };
 
   // Update an alternative name
@@ -207,7 +203,7 @@ export default function HomePage() {
                 <TableRow key={altIndex}>
                   <TableCell><TextField fullWidth value={alt.name} onChange={(e) => updateAlternativeName(altIndex, e.target.value)} /></TableCell>
                   {criteria.map((_, critIndex) => <TableCell key={critIndex}><TextField type="number" /></TableCell>)}
-                  <TableCell><IconButton color="error"><DeleteIcon /></IconButton></TableCell>
+                  <TableCell><IconButton color="error" onClick={() => removeAlternative(altIndex)}><DeleteIcon /></IconButton></TableCell>
                 </TableRow>
               ))}
             </TableBody>
