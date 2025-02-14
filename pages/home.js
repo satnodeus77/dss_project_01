@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import {
-  Box, Container, Typography, IconButton, Menu, MenuItem, Avatar, Button, Dialog, DialogTitle, DialogContent, DialogActions
+  Box, Container, Typography, IconButton, Menu, MenuItem, Avatar, Button
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import HistoryIcon from "@mui/icons-material/History";
 import { auth } from "../lib/firebase";
 
-export default function HomePage() {
+export default function HistoryPage() {
   const [user, setUser] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [aboutOpen, setAboutOpen] = useState(false);
+  //
 
   const router = useRouter();
 
@@ -38,14 +38,6 @@ export default function HomePage() {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
-  };
-
-  const handleAboutOpen = () => {
-    setAboutOpen(true);
-  };
-
-  const handleAboutClose = () => {
-    setAboutOpen(false);
   };
 
   return (
@@ -113,7 +105,7 @@ export default function HomePage() {
         )}
       </Box>
 
-      {/* Main DSS Section */}
+      {/* Main History Section */}
       <Container
         sx={{
           backgroundColor: "white",
@@ -126,20 +118,10 @@ export default function HomePage() {
         }}
       >
         <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2 }}>
-          Welcome to DSS Project MMI
+          History Page
         </Typography>
         <Typography variant="body1" sx={{ mb: 2 }}>
-          This project is developed to provide a framework for Decision Support Systems.
-        </Typography>
-        <Typography variant="body1" sx={{ mb: 2 }}>
-          Contributors:
-        </Typography>
-        <Typography variant="body1">
-          24/546050/PPA/06833 - Aziz Hendra Atmadja
-          <br />
-          24/548101/PPA/06919 - Marta Zuriadi
-          <br />
-          24/548140/PPA/06921 - Silvanus Satno Nugraha
+          This page will display the history of calculations.
         </Typography>
       </Container>
     </Box>
