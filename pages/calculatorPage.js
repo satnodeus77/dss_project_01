@@ -3,27 +3,22 @@ import { useRouter } from "next/router";
 import {
   Box, Container, Typography, IconButton, Menu, MenuItem, Avatar,
   Select, TextField, Button, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, FormControl, Paper, Dialog, DialogTitle,
-  DialogContent, DialogActions, Checkbox
+  TableHead, TableRow, FormControl, Paper, Checkbox
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CalculateIcon from "@mui/icons-material/Calculate";
-import SaveIcon from '@mui/icons-material/Save';
-import HistoryIcon from '@mui/icons-material/History';
+import HistoryIcon from "@mui/icons-material/History";
 import { auth } from "../lib/firebase";
 
 export default function CalculatorPage() {
   const [user, setUser] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [aboutOpen, setAboutOpen] = useState(false);
   const [method, setMethod] = useState("SAW");
   const [criteria, setCriteria] = useState([{ name: "", type: "Benefit", weight: "", active: true }]);
   const [alternatives, setAlternatives] = useState([]);
   const [results, setResults] = useState([]);
-  const [saveStatus, setSaveStatus] = useState(null);
-  const [saveError, setSaveError] = useState(null);
 
   const router = useRouter();
 
@@ -50,14 +45,6 @@ export default function CalculatorPage() {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
-  };
-
-  const handleAboutOpen = () => {
-    setAboutOpen(true);
-  };
-
-  const handleAboutClose = () => {
-    setAboutOpen(false);
   };
 
   const removeAlternative = (index) => {
@@ -203,32 +190,34 @@ export default function CalculatorPage() {
         }}
       >
         {user && (
-          <>
-            {/* About Button */}
-            <Typography
-              variant="body1"
-              onClick={handleAboutOpen}
-              sx={{
-                fontWeight: "bold",
-                textTransform: "none",
-                marginRight: 2,
-                cursor: "pointer",
-              }}
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            {/* Calculator Button */}
+            <Button
+              variant="text"
+              startIcon={<CalculateIcon sx={{ color: "gray" }} />}
+              sx={{ color: "white", textTransform: "none", fontWeight: "bold", fontSize: "1rem", marginRight: 2 }}
+              onClick={() => router.push('/calculatorPage')}
             >
-              About
-            </Typography>
+              Calculator
+            </Button>
+
+            {/* History Button */}
+            <Button
+              variant="text"
+              startIcon={<HistoryIcon sx={{ color: "gray" }} />}
+              sx={{ color: "white", textTransform: "none", fontWeight: "bold", fontSize: "1rem", marginRight: 2 }}
+              onClick={() => router.push('/historyPage')}
+            >
+              History
+            </Button>
 
             {/* User Info */}
-            <Typography variant="body1" sx={{ fontWeight: "bold", marginRight: 2 }}>
+            <Typography variant="body1" sx={{ fontWeight: "bold", fontSize: "1rem", marginRight: 2 }}>
               {user.displayName}
             </Typography>
-
-            {/* User Avatar */}
             <IconButton onClick={handleMenuOpen}>
               <Avatar src={user.photoURL} sx={{ width: 40, height: 40 }} />
             </IconButton>
-
-            {/* Dropdown Menu */}
             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
               <MenuItem disabled>{user.email}</MenuItem>
               <MenuItem onClick={handleLogout}>
@@ -236,28 +225,9 @@ export default function CalculatorPage() {
                 Logout
               </MenuItem>
             </Menu>
-          </>
+          </Box>
         )}
       </Box>
-
-      {/* About Dialog */}
-      <Dialog open={aboutOpen} onClose={handleAboutClose}>
-        <DialogTitle>About DSS Project MMI</DialogTitle>
-        <DialogContent>
-          <Typography>
-            Welcome to DSS Project MMI
-            <br />
-            24/546050/PPA/06833 - Aziz Hendra Atmadja
-            <br />
-            24/548101/PPA/06919 - Marta Zuriadi
-            <br />
-            24/548140/PPA/06921 - Silvanus Satno Nugraha
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleAboutClose}>Close</Button>
-        </DialogActions>
-      </Dialog>
 
       {/* Main DSS Section */}
       <Container
@@ -274,23 +244,193 @@ export default function CalculatorPage() {
           <Typography variant="h5" sx={{ fontWeight: "bold" }}>
             Decision Support System Framework
           </Typography>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Button
-              variant="contained"
-              startIcon={<CalculateIcon />}
-              sx={{ mr: 1 }}
-              onClick={() => router.push('/CalculatorPage')}
+        </Box>
+
+        {/* Calculator Functionality */}
+        <Box sx={{ mb: 2 }}>
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <Select
+              value={method}
+              onChange={(e) => setMethod(e.target.value)}
+              displayEmpty
             >
-              Calculator
-            </Button>
-            <Button
-              variant="outlined"
-              startIcon={<HistoryIcon />}
-              onClick={() => router.push('/HistoryPage')}
-            >
-              History
-            </Button>
-          </Box>
+              <MenuItem value="SAW">SAW</MenuItem>
+              <MenuItem value="TOPSIS">TOPSIS</MenuItem>
+              <MenuItem value="WP">WP</MenuItem>
+            </Select>
+          </FormControl>
+
+          <TableContainer component={Paper} sx={{ mb: 2 }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Criteria</TableCell>
+                  <TableCell>Type</TableCell>
+                  <TableCell>Weight</TableCell>
+                  <TableCell>Active</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {criteria.map((criterion, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <TextField
+                        value={criterion.name}
+                        onChange={(e) => {
+                          const updatedCriteria = [...criteria];
+                          updatedCriteria[index].name = e.target.value;
+                          setCriteria(updatedCriteria);
+                        }}
+                        fullWidth
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Select
+                        value={criterion.type}
+                        onChange={(e) => {
+                          const updatedCriteria = [...criteria];
+                          updatedCriteria[index].type = e.target.value;
+                          setCriteria(updatedCriteria);
+                        }}
+                        fullWidth
+                      >
+                        <MenuItem value="Benefit">Benefit</MenuItem>
+                        <MenuItem value="Cost">Cost</MenuItem>
+                      </Select>
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        type="number"
+                        value={criterion.weight}
+                        onChange={(e) => {
+                          const updatedCriteria = [...criteria];
+                          updatedCriteria[index].weight = e.target.value;
+                          setCriteria(updatedCriteria);
+                        }}
+                        fullWidth
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Checkbox
+                        checked={criterion.active}
+                        onChange={() => toggleCriteriaActive(index)}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <IconButton onClick={() => {
+                        const updatedCriteria = criteria.filter((_, i) => i !== index);
+                        setCriteria(updatedCriteria);
+                      }}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setCriteria([...criteria, { name: "", type: "Benefit", weight: "", active: true }])}
+            sx={{ mb: 2 }}
+          >
+            Add Criterion
+          </Button>
+
+          <TableContainer component={Paper} sx={{ mb: 2 }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Alternative</TableCell>
+                  {criteria.map((criterion, index) => (
+                    <TableCell key={index}>{criterion.name}</TableCell>
+                  ))}
+                  <TableCell>Active</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {alternatives.map((alternative, altIndex) => (
+                  <TableRow key={altIndex}>
+                    <TableCell>
+                      <TextField
+                        value={alternative.name}
+                        onChange={(e) => {
+                          const updatedAlternatives = [...alternatives];
+                          updatedAlternatives[altIndex].name = e.target.value;
+                          setAlternatives(updatedAlternatives);
+                        }}
+                        fullWidth
+                      />
+                    </TableCell>
+                    {criteria.map((criterion, critIndex) => (
+                      <TableCell key={critIndex}>
+                        <TextField
+                          type="number"
+                          value={alternative.values[critIndex]}
+                          onChange={(e) => updateAlternativeValue(altIndex, critIndex, e.target.value)}
+                          fullWidth
+                        />
+                      </TableCell>
+                    ))}
+                    <TableCell>
+                      <Checkbox
+                        checked={alternative.active}
+                        onChange={() => toggleAlternativeActive(altIndex)}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <IconButton onClick={() => removeAlternative(altIndex)}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setAlternatives([...alternatives, { name: "", values: Array(criteria.length).fill(""), active: true }])}
+            sx={{ mb: 2 }}
+          >
+            Add Alternative
+          </Button>
+
+          <Button
+            variant="contained"
+            startIcon={<CalculateIcon />}
+            onClick={calculateResults}
+            sx={{ mb: 2 }}
+          >
+            Calculate
+          </Button>
+
+          {results.length > 0 && (
+            <TableContainer component={Paper} sx={{ mt: 2 }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Alternative</TableCell>
+                    <TableCell>Score</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {results.map((result, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{result.name}</TableCell>
+                      <TableCell>{result.score}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
         </Box>
       </Container>
     </Box>
