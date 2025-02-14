@@ -56,11 +56,39 @@ export default function HomePage() {
     setAboutOpen(false);
   };
 
+  // ✅ Function to Add Criteria
+  const addCriterion = () => {
+    setCriteria([...criteria, { name: "", type: "Benefit", weight: "" }]);
+
+    // Ensure new criteria is added for each alternative
+    setAlternatives(alternatives.map(alt => ({
+      ...alt,
+      values: [...alt.values, ""]
+    })));
+  };
+
+  // ✅ Function to Remove Criteria
+  const removeCriterion = (index) => {
+    setCriteria(criteria.filter((_, i) => i !== index));
+
+    // Remove corresponding values from alternatives
+    setAlternatives(alternatives.map(alt => {
+      alt.values.splice(index, 1);
+      return alt;
+    }));
+  };
+
+  // ✅ Function to Add Alternative
+  const addAlternative = () => {
+    setAlternatives([...alternatives, { name: "", values: Array(criteria.length).fill("") }]);
+  };
+
+  // ✅ Function to Remove Alternative
   const removeAlternative = (index) => {
     setAlternatives(alternatives.filter((_, i) => i !== index));
   };
 
-  // 🔥 Function to Calculate Rankings Based on Selected Method
+  // ✅ Function to Calculate Rankings Based on Selected Method
   const calculateResults = () => {
     if (!alternatives.length || !criteria.length) {
       alert("Please add criteria and alternatives before calculating!");
@@ -153,74 +181,39 @@ export default function HomePage() {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        backgroundImage: "url('/dss-background.jpg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        paddingTop: "40px",
-      }}
-    >
-      {/* Main DSS Section */}
-      <Container
-        sx={{
-          backgroundColor: "white",
-          width: "70%",
-          padding: "2rem",
-          borderRadius: "10px",
-          mt: 4,
-          boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
-        }}
-      >
-        <Typography variant="h4" sx={{ textAlign: "center", fontWeight: "bold", mb: 2 }}>
-          Decision Support System Framework
-        </Typography>
+    <Container sx={{ mt: 4, backgroundColor: "white", padding: "2rem", borderRadius: "10px" }}>
+      <Typography variant="h4" sx={{ textAlign: "center", fontWeight: "bold", mb: 2 }}>
+        Decision Support System Framework
+      </Typography>
 
-        {/* DSS Method Selection */}
-        <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
-          Decision Support Method
-        </Typography>
-        <FormControl fullWidth sx={{ mb: 2 }}>
-          <Select value={method} onChange={(e) => setMethod(e.target.value)}>
-            <MenuItem value="SAW">Simple Additive Weighting (SAW)</MenuItem>
-            <MenuItem value="TOPSIS">Technique for Order Preference by Similarity to Ideal Solution (TOPSIS)</MenuItem>
-            <MenuItem value="WP">Weighted Product Model (WP)</MenuItem>
-          </Select>
-        </FormControl>
+      {/* Calculate Button */}
+      <Button fullWidth startIcon={<CalculateIcon />} variant="contained" onClick={calculateResults}>
+        Calculate Results
+      </Button>
 
-        {/* Calculate Button */}
-        <Button fullWidth startIcon={<CalculateIcon />} variant="contained" onClick={calculateResults}>
-          Calculate Results
-        </Button>
-
-        {/* Results Section */}
-        {results.length > 0 && (
-          <TableContainer component={Paper} sx={{ mt: 3 }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Rank</TableCell>
-                  <TableCell>Alternative</TableCell>
-                  <TableCell>Score</TableCell>
+      {/* Results Section */}
+      {results.length > 0 && (
+        <TableContainer component={Paper} sx={{ mt: 3 }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Rank</TableCell>
+                <TableCell>Alternative</TableCell>
+                <TableCell>Score</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {results.map((res, index) => (
+                <TableRow key={index}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{res.name}</TableCell>
+                  <TableCell>{res.score.toFixed(4)}</TableCell>
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                {results.map((res, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{res.name}</TableCell>
-                    <TableCell>{res.score.toFixed(4)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
-      </Container>
-    </Box>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+    </Container>
   );
 }
