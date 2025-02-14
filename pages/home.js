@@ -55,6 +55,11 @@ export default function HomePage() {
     setAboutOpen(false);
   };
 
+  // ✅ Fixed: Delete Alternative Button
+  const removeAlternative = (index) => {
+    setAlternatives(alternatives.filter((_, i) => i !== index));
+  };
+
   return (
     <Box
       sx={{
@@ -82,7 +87,7 @@ export default function HomePage() {
       >
         {user && (
           <>
-            {/* About Button (Same font size as username) */}
+            {/* About Button */}
             <Typography
               variant="body1"
               onClick={handleAboutOpen}
@@ -152,7 +157,7 @@ export default function HomePage() {
           Decision Support System Framework
         </Typography>
 
-        {/* DSS Method Selection - Label Fixed */}
+        {/* DSS Method Selection */}
         <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
           Decision Support Method
         </Typography>
@@ -168,24 +173,12 @@ export default function HomePage() {
         <Typography variant="h6">Criteria</Typography>
         {criteria.map((c, index) => (
           <Box key={index} sx={{ display: "flex", gap: 2, mb: 1 }}>
-            <TextField fullWidth label="Criteria Name" value={c.name} onChange={(e) => {
-              const newCriteria = [...criteria];
-              newCriteria[index].name = e.target.value;
-              setCriteria(newCriteria);
-            }} />
-            <Select value={c.type} onChange={(e) => {
-              const newCriteria = [...criteria];
-              newCriteria[index].type = e.target.value;
-              setCriteria(newCriteria);
-            }}>
+            <TextField fullWidth label="Criteria Name" value={c.name} />
+            <Select value={c.type}>
               <MenuItem value="Benefit">Benefit</MenuItem>
               <MenuItem value="Cost">Cost</MenuItem>
             </Select>
-            <TextField type="number" label="Weight" value={c.weight} onChange={(e) => {
-              const newCriteria = [...criteria];
-              newCriteria[index].weight = e.target.value;
-              setCriteria(newCriteria);
-            }} />
+            <TextField type="number" label="Weight" value={c.weight} />
             <IconButton color="error" onClick={() => setCriteria(criteria.filter((_, i) => i !== index))}>
               <DeleteIcon />
             </IconButton>
@@ -195,23 +188,45 @@ export default function HomePage() {
 
         {/* Alternatives Section */}
         <Typography variant="h6" sx={{ mt: 3 }}>Alternatives</Typography>
-        <Button startIcon={<AddIcon />} sx={{ mb: 2 }} onClick={() => setAlternatives([...alternatives, { name: "", values: Array(criteria.length).fill("") }])}>Add Alternative</Button>
+        <Button
+          startIcon={<AddIcon />}
+          sx={{ mb: 2 }}
+          onClick={() => setAlternatives([...alternatives, { name: "", values: Array(criteria.length).fill("") }])}
+        >
+          Add Alternative
+        </Button>
 
         <TableContainer component={Paper} sx={{ mb: 2 }}>
           <Table>
             <TableHead>
               <TableRow>
                 <TableCell>Alternative Name</TableCell>
-                {criteria.map((c, index) => <TableCell key={index}>{c.name || `Criteria ${index + 1}`}</TableCell>)}
+                {criteria.map((c, index) => (
+                  <TableCell key={index}>{c.name || `Criteria ${index + 1}`}</TableCell>
+                ))}
                 <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {alternatives.map((alt, altIndex) => (
                 <TableRow key={altIndex}>
-                  <TableCell><TextField fullWidth value={alt.name} /></TableCell>
-                  {criteria.map((_, critIndex) => <TableCell key={critIndex}><TextField type="number" /></TableCell>)}
-                  <TableCell><IconButton color="error"><DeleteIcon /></IconButton></TableCell>
+                  <TableCell>
+                    <TextField fullWidth value={alt.name} onChange={(e) => {
+                      const updatedAlternatives = [...alternatives];
+                      updatedAlternatives[altIndex].name = e.target.value;
+                      setAlternatives(updatedAlternatives);
+                    }} />
+                  </TableCell>
+                  {criteria.map((_, critIndex) => (
+                    <TableCell key={critIndex}>
+                      <TextField type="number" />
+                    </TableCell>
+                  ))}
+                  <TableCell>
+                    <IconButton color="error" onClick={() => removeAlternative(altIndex)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
