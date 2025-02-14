@@ -5,7 +5,7 @@ import {
   Box, Container, Typography, IconButton, Menu, MenuItem, Avatar,
   Select, TextField, Button, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, FormControl, Paper, Dialog, DialogTitle,
-  DialogContent, DialogActions, Checkbox
+  DialogContent, DialogActions
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AddIcon from "@mui/icons-material/Add";
@@ -284,10 +284,6 @@ export default function HomePage() {
         <Typography variant="h6">Criteria</Typography>
         {criteria.map((c, index) => (
           <Box key={index} sx={{ display: "flex", gap: 2, mb: 1 }}>
-            <Checkbox
-              checked={c.active}
-              onChange={() => toggleCriteriaActive(index)}
-            />
             <TextField
               fullWidth
               label="Criteria Name"
@@ -343,7 +339,6 @@ export default function HomePage() {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Active</TableCell>
                 <TableCell>Alternative Name</TableCell>
                 {criteria.map((c, index) => (
                   <TableCell key={index}>{c.name || `Criteria ${index + 1}`}</TableCell>
@@ -354,12 +349,6 @@ export default function HomePage() {
             <TableBody>
               {alternatives.map((alt, altIndex) => (
                 <TableRow key={altIndex}>
-                  <TableCell>
-                    <Checkbox
-                      checked={alt.active}
-                      onChange={() => toggleAlternativeActive(altIndex)}
-                    />
-                  </TableCell>
                   <TableCell>
                     <TextField
                       fullWidth
