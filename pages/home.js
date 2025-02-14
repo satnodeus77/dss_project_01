@@ -161,7 +161,7 @@ export default function HomePage() {
         paddingTop: "0px",
       }}
     >
-      {/* Header Section (Sticky) */}
+      {/* Header Section */}
       <Box
         sx={{
           width: "100%",
@@ -171,9 +171,6 @@ export default function HomePage() {
           justifyContent: "flex-end",
           alignItems: "center",
           padding: "10px 20px",
-          position: "sticky",
-          top: 0,
-          zIndex: 1000,
         }}
       >
         {user && (
