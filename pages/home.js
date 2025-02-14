@@ -17,6 +17,8 @@ export default function HomePage() {
   const [method, setMethod] = useState("SAW");
   const [criteria, setCriteria] = useState([{ name: "", type: "Benefit", weight: "" }]);
   const [alternatives, setAlternatives] = useState([]);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [aboutOpen, setAboutOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
