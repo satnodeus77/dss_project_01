@@ -49,11 +49,24 @@ export default function HomePage() {
   };
 
   return (
-    <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "40px" }}>
+    <Box sx={{ minHeight: "100vh", backgroundImage: "url('/dss-background.jpg')", backgroundSize: "cover", backgroundPosition: "center", display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "40px" }}>
+      <Box sx={{ width: "100%", backgroundColor: "rgba(0, 0, 0, 0.6)", color: "white", display: "flex", justifyContent: "flex-end", alignItems: "center", padding: "10px 20px" }}>
+        {user && (
+          <>
+            <Typography variant="body1" onClick={() => setAboutOpen(true)} sx={{ fontWeight: "bold", textTransform: "none", marginRight: 2, cursor: "pointer" }}>About</Typography>
+            <Typography variant="body1" sx={{ fontWeight: "bold", marginRight: 2 }}>{user.displayName}</Typography>
+            <IconButton onClick={(e) => setAnchorEl(e.currentTarget)}>
+              <Avatar src={user.photoURL} sx={{ width: 40, height: 40 }} />
+            </IconButton>
+            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
+              <MenuItem disabled>{user.email}</MenuItem>
+              <MenuItem onClick={() => auth.signOut().then(() => router.push("/"))}><LogoutIcon sx={{ mr: 1 }} />Logout</MenuItem>
+            </Menu>
+          </>
+        )}
+      </Box>
       <Container sx={{ backgroundColor: "white", width: "70%", padding: "2rem", borderRadius: "10px", mt: 4, boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)" }}>
         <Typography variant="h4" sx={{ textAlign: "center", fontWeight: "bold", mb: 2 }}>Decision Support System Framework</Typography>
-
-        {/* DSS Method Selection */}
         <Typography variant="h6">Decision Support Method</Typography>
         <FormControl fullWidth sx={{ mb: 2 }}>
           <Select value={method} onChange={(e) => setMethod(e.target.value)}>
@@ -62,8 +75,6 @@ export default function HomePage() {
             <MenuItem value="WP">Weighted Product Model (WP)</MenuItem>
           </Select>
         </FormControl>
-
-        {/* Criteria Section */}
         <Typography variant="h6">Criteria</Typography>
         {criteria.map((c, index) => (
           <Box key={index} sx={{ display: "flex", gap: 2, mb: 1 }}>
@@ -73,49 +84,8 @@ export default function HomePage() {
               <MenuItem value="Cost">Cost</MenuItem>
             </Select>
             <TextField type="number" label="Weight" value={c.weight} onChange={(e) => updateCriteria(index, "weight", e.target.value)} />
-            <IconButton color="error" onClick={() => setCriteria(criteria.filter((_, i) => i !== index))}>
-              <DeleteIcon />
-            </IconButton>
           </Box>
         ))}
-        <Button startIcon={<AddIcon />} onClick={() => setCriteria([...criteria, { name: "", type: "Benefit", weight: "" }])}>Add Criteria</Button>
-
-        {/* Alternatives Section */}
-        <Typography variant="h6" sx={{ mt: 3 }}>Alternatives</Typography>
-        <Button startIcon={<AddIcon />} sx={{ mb: 2 }} onClick={() => setAlternatives([...alternatives, { name: "", values: Array(criteria.length).fill("") }])}>Add Alternative</Button>
-
-        <TableContainer component={Paper} sx={{ mb: 2 }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Alternative Name</TableCell>
-                {criteria.map((c, index) => (<TableCell key={index}>{c.name || `Criteria ${index + 1}`}</TableCell>))}
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {alternatives.map((alt, altIndex) => (
-                <TableRow key={altIndex}>
-                  <TableCell>
-                    <TextField fullWidth value={alt.name} onChange={(e) => updateAlternative(altIndex, "name", e.target.value)} />
-                  </TableCell>
-                  {criteria.map((_, critIndex) => (
-                    <TableCell key={critIndex}>
-                      <TextField type="number" value={alt.values[critIndex] || ""} onChange={(e) => updateAlternativeValue(altIndex, critIndex, e.target.value)} />
-                    </TableCell>
-                  ))}
-                  <TableCell>
-                    <IconButton color="error" onClick={() => setAlternatives(alternatives.filter((_, i) => i !== altIndex))}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-
-        <Button fullWidth variant="contained">Calculate Results</Button>
       </Container>
     </Box>
   );
