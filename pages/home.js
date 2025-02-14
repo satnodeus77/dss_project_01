@@ -8,6 +8,9 @@ import {
   DialogContent, DialogActions
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";  // ✅ FIXED: Added Missing Import
+import CalculateIcon from "@mui/icons-material/Calculate";
 
 export default function HomePage() {
   const [user, setUser] = useState(null);
