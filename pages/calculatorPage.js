@@ -117,7 +117,8 @@ export default function CalculatorPage() {
 
   const calculateTOPSIS = (normalizedCriteria) => {
     const activeAlternatives = alternatives.filter(a => a.active);
-
+  
+    // Step 2: Normalize the Decision Matrix
     const normalizedAlternatives = activeAlternatives.map((alt) => {
       const normalizedValues = alt.values.map((value, index) => {
         const sumOfSquares = Math.sqrt(activeAlternatives.reduce((acc, a) => acc + Math.pow(parseFloat(a.values[index]), 2), 0));
@@ -125,31 +126,35 @@ export default function CalculatorPage() {
       });
       return { ...alt, normalizedValues };
     });
-
+  
+    // Step 3: Calculate the Weighted Normalized Matrix
     const weightedAlternatives = normalizedAlternatives.map((alt) => {
       const weightedValues = alt.normalizedValues.map((value, index) => value * normalizedCriteria[index].weight);
       return { ...alt, weightedValues };
     });
-
+  
+    // Step 4: Determine Ideal Best and Ideal Worst
     const idealBest = normalizedCriteria.map((criterion, index) => {
       return criterion.type === "Benefit"
         ? Math.max(...weightedAlternatives.map((alt) => alt.weightedValues[index]))
         : Math.min(...weightedAlternatives.map((alt) => alt.weightedValues[index]));
     });
-
+  
     const idealWorst = normalizedCriteria.map((criterion, index) => {
       return criterion.type === "Benefit"
         ? Math.min(...weightedAlternatives.map((alt) => alt.weightedValues[index]))
         : Math.max(...weightedAlternatives.map((alt) => alt.weightedValues[index]));
     });
-
+  
+    // Step 5: Calculate Distance to Ideal Best and Worst
     const scores = weightedAlternatives.map((alt) => {
       const distanceToBest = Math.sqrt(alt.weightedValues.reduce((acc, value, index) => acc + Math.pow(value - idealBest[index], 2), 0));
       const distanceToWorst = Math.sqrt(alt.weightedValues.reduce((acc, value, index) => acc + Math.pow(value - idealWorst[index], 2), 0));
       const score = distanceToWorst / (distanceToBest + distanceToWorst);
       return { name: alt.name, score: parseFloat(score.toFixed(3)) };
     });
-
+  
+    // Step 6: Final TOPSIS Ranking
     return scores.sort((a, b) => b.score - a.score);
   };
 
