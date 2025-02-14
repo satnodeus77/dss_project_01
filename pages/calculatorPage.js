@@ -160,14 +160,25 @@ export default function CalculatorPage() {
 
   const calculateWP = (normalizedCriteria) => {
     const activeAlternatives = alternatives.filter(a => a.active);
-
-    const scores = activeAlternatives.map((alt) => {
-      const score = alt.values.reduce((acc, value, index) => {
+  
+    // Step 1: Convert Cost Criteria to Benefits
+    const convertedAlternatives = activeAlternatives.map((alt) => {
+      const convertedValues = alt.values.map((value, index) => {
+        const criterion = normalizedCriteria[index];
+        return criterion.type === "Cost" ? 1 / value : value;
+      });
+      return { ...alt, convertedValues };
+    });
+  
+    // Step 2: Compute the Weighted Product
+    const scores = convertedAlternatives.map((alt) => {
+      const score = alt.convertedValues.reduce((acc, value, index) => {
         return acc * Math.pow(parseFloat(value), normalizedCriteria[index].weight);
       }, 1);
       return { name: alt.name, score: parseFloat(score.toFixed(3)) };
     });
-
+  
+    // Step 3: Rank the Alternatives
     return scores.sort((a, b) => b.score - a.score);
   };
 
