@@ -19,6 +19,7 @@ export default function HomePage() {
   const [method, setMethod] = useState("SAW");
   const [criteria, setCriteria] = useState([{ name: "", type: "Benefit", weight: "" }]);
   const [alternatives, setAlternatives] = useState([]);
+  const [results, setResults] = useState([]);
 
   const router = useRouter();
 
@@ -63,6 +64,88 @@ export default function HomePage() {
     const updatedAlternatives = [...alternatives];
     updatedAlternatives[altIndex].values[critIndex] = value || "";
     setAlternatives(updatedAlternatives);
+  };
+
+  const calculateResults = () => {
+    let calculatedResults = [];
+
+    if (method === "SAW") {
+      calculatedResults = calculateSAW();
+    } else if (method === "TOPSIS") {
+      calculatedResults = calculateTOPSIS();
+    } else if (method === "WP") {
+      calculatedResults = calculateWP();
+    }
+
+    setResults(calculatedResults);
+  };
+
+  const calculateSAW = () => {
+    const normalizedAlternatives = alternatives.map((alt) => {
+      const normalizedValues = alt.values.map((value, index) => {
+        const criterion = criteria[index];
+        const maxValue = Math.max(...alternatives.map((a) => parseFloat(a.values[index])));
+        const minValue = Math.min(...alternatives.map((a) => parseFloat(a.values[index])));
+        return criterion.type === "Benefit" ? value / maxValue : minValue / value;
+      });
+      return { ...alt, normalizedValues };
+    });
+
+    const scores = normalizedAlternatives.map((alt) => {
+      const score = alt.normalizedValues.reduce((acc, value, index) => {
+        return acc + value * parseFloat(criteria[index].weight);
+      }, 0);
+      return { name: alt.name, score };
+    });
+
+    return scores.sort((a, b) => b.score - a.score);
+  };
+
+  const calculateTOPSIS = () => {
+    const normalizedAlternatives = alternatives.map((alt) => {
+      const normalizedValues = alt.values.map((value, index) => {
+        const sumOfSquares = Math.sqrt(alternatives.reduce((acc, a) => acc + Math.pow(parseFloat(a.values[index]), 2), 0));
+        return value / sumOfSquares;
+      });
+      return { ...alt, normalizedValues };
+    });
+
+    const weightedAlternatives = normalizedAlternatives.map((alt) => {
+      const weightedValues = alt.normalizedValues.map((value, index) => value * parseFloat(criteria[index].weight));
+      return { ...alt, weightedValues };
+    });
+
+    const idealBest = criteria.map((criterion, index) => {
+      return criterion.type === "Benefit"
+        ? Math.max(...weightedAlternatives.map((alt) => alt.weightedValues[index]))
+        : Math.min(...weightedAlternatives.map((alt) => alt.weightedValues[index]));
+    });
+
+    const idealWorst = criteria.map((criterion, index) => {
+      return criterion.type === "Benefit"
+        ? Math.min(...weightedAlternatives.map((alt) => alt.weightedValues[index]))
+        : Math.max(...weightedAlternatives.map((alt) => alt.weightedValues[index]));
+    });
+
+    const scores = weightedAlternatives.map((alt) => {
+      const distanceToBest = Math.sqrt(alt.weightedValues.reduce((acc, value, index) => acc + Math.pow(value - idealBest[index], 2), 0));
+      const distanceToWorst = Math.sqrt(alt.weightedValues.reduce((acc, value, index) => acc + Math.pow(value - idealWorst[index], 2), 0));
+      const score = distanceToWorst / (distanceToBest + distanceToWorst);
+      return { name: alt.name, score };
+    });
+
+    return scores.sort((a, b) => b.score - a.score);
+  };
+
+  const calculateWP = () => {
+    const scores = alternatives.map((alt) => {
+      const score = alt.values.reduce((acc, value, index) => {
+        return acc * Math.pow(parseFloat(value), parseFloat(criteria[index].weight));
+      }, 1);
+      return { name: alt.name, score };
+    });
+
+    return scores.sort((a, b) => b.score - a.score);
   };
 
   return (
@@ -271,7 +354,34 @@ export default function HomePage() {
           </Table>
         </TableContainer>
 
-        <Button fullWidth variant="contained">Calculate Results</Button>
+        <Button fullWidth variant="contained" onClick={calculateResults}>Calculate Results</Button>
+
+        {/* Results Section */}
+        {results.length > 0 && (
+          <Box sx={{ mt: 4 }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>Results</Typography>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Rank</TableCell>
+                    <TableCell>Alternative Name</TableCell>
+                    <TableCell>Score</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {results.map((result, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{result.name}</TableCell>
+                      <TableCell>{result.score}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        )}
       </Container>
     </Box>
   );
