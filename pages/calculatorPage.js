@@ -10,6 +10,7 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import HistoryIcon from "@mui/icons-material/History";
+import SaveIcon from "@mui/icons-material/Save";
 import { auth } from "../lib/firebase";
 
 export default function CalculatorPage() {
@@ -92,7 +93,7 @@ export default function CalculatorPage() {
 
   const calculateSAW = (normalizedCriteria) => {
     const activeAlternatives = alternatives.filter(a => a.active);
-  
+
     // Normalize the Decision Matrix
     const normalizedAlternatives = activeAlternatives.map((alt) => {
       const normalizedValues = alt.values.map((value, index) => {
@@ -103,7 +104,7 @@ export default function CalculatorPage() {
       });
       return { ...alt, normalizedValues };
     });
-  
+
     // Multiply by Weights
     const scores = normalizedAlternatives.map((alt) => {
       const score = alt.normalizedValues.reduce((acc, value, index) => {
@@ -111,13 +112,13 @@ export default function CalculatorPage() {
       }, 0);
       return { name: alt.name, score: parseFloat(score.toFixed(3)) };
     });
-  
+
     return scores.sort((a, b) => b.score - a.score);
   };
 
   const calculateTOPSIS = (normalizedCriteria) => {
     const activeAlternatives = alternatives.filter(a => a.active);
-  
+
     // Step 2: Normalize the Decision Matrix
     const normalizedAlternatives = activeAlternatives.map((alt) => {
       const normalizedValues = alt.values.map((value, index) => {
@@ -126,26 +127,26 @@ export default function CalculatorPage() {
       });
       return { ...alt, normalizedValues };
     });
-  
+
     // Step 3: Calculate the Weighted Normalized Matrix
     const weightedAlternatives = normalizedAlternatives.map((alt) => {
       const weightedValues = alt.normalizedValues.map((value, index) => value * normalizedCriteria[index].weight);
       return { ...alt, weightedValues };
     });
-  
+
     // Step 4: Determine Ideal Best and Ideal Worst
     const idealBest = normalizedCriteria.map((criterion, index) => {
       return criterion.type === "Benefit"
         ? Math.max(...weightedAlternatives.map((alt) => alt.weightedValues[index]))
         : Math.min(...weightedAlternatives.map((alt) => alt.weightedValues[index]));
     });
-  
+
     const idealWorst = normalizedCriteria.map((criterion, index) => {
       return criterion.type === "Benefit"
         ? Math.min(...weightedAlternatives.map((alt) => alt.weightedValues[index]))
         : Math.max(...weightedAlternatives.map((alt) => alt.weightedValues[index]));
     });
-  
+
     // Step 5: Calculate Distance to Ideal Best and Worst
     const scores = weightedAlternatives.map((alt) => {
       const distanceToBest = Math.sqrt(alt.weightedValues.reduce((acc, value, index) => acc + Math.pow(value - idealBest[index], 2), 0));
@@ -153,14 +154,14 @@ export default function CalculatorPage() {
       const score = distanceToWorst / (distanceToBest + distanceToWorst);
       return { name: alt.name, score: parseFloat(score.toFixed(3)) };
     });
-  
+
     // Step 6: Final TOPSIS Ranking
     return scores.sort((a, b) => b.score - a.score);
   };
 
   const calculateWP = (normalizedCriteria) => {
     const activeAlternatives = alternatives.filter(a => a.active);
-  
+
     // Step 1: Convert Cost Criteria to Benefits
     const convertedAlternatives = activeAlternatives.map((alt) => {
       const convertedValues = alt.values.map((value, index) => {
@@ -169,7 +170,7 @@ export default function CalculatorPage() {
       });
       return { ...alt, convertedValues };
     });
-  
+
     // Step 2: Compute the Weighted Product
     const scores = convertedAlternatives.map((alt) => {
       const score = alt.convertedValues.reduce((acc, value, index) => {
@@ -177,9 +178,14 @@ export default function CalculatorPage() {
       }, 1);
       return { name: alt.name, score: parseFloat(score.toFixed(3)) };
     });
-  
+
     // Step 3: Rank the Alternatives
     return scores.sort((a, b) => b.score - a.score);
+  };
+
+  const handleSaveResults = () => {
+    // Implement the save functionality here
+    console.log("Results saved:", results);
   };
 
   return (
@@ -224,7 +230,7 @@ export default function CalculatorPage() {
               variant="text"
               startIcon={<HistoryIcon sx={{ color: "gray" }} />}
               sx={{ color: "white", textTransform: "none", fontWeight: "bold", fontSize: "1rem", marginRight: 2 }}
-              onClick={() => router.push('/historyPage')}
+              onClick={() => router.push('/historyCalculationPage')}
             >
               History
             </Button>
@@ -432,29 +438,40 @@ export default function CalculatorPage() {
           </Box>
 
           {results.length > 0 && (
-            <TableContainer component={Paper} sx={{ mt: 2 }}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Alternative</TableCell>
-                    <TableCell>Score</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {results.map((result, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{result.name}</TableCell>
-                      <TableCell>{result.score}</TableCell>
+            <>
+              <TableContainer component={Paper} sx={{ mt: 2 }}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Alternative</TableCell>
+                      <TableCell>Score</TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                  </TableHead>
+                  <TableBody>
+                    {results.map((result, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{result.name}</TableCell>
+                        <TableCell>{result.score}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+
+              <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+                <Button
+                  variant="contained"
+                  startIcon={<SaveIcon />}
+                  onClick={handleSaveResults}
+                  sx={{ backgroundColor: "#2196f3", '&:hover': { backgroundColor: "#1976d2" } }}
+                >
+                  Save result calculation
+                </Button>
+              </Box>
+            </>
           )}
         </Box>
       </Container>
     </Box>
   );
 }
-
-//test
