@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
-import { auth } from "../lib/firebase";
 import { useRouter } from "next/router";
 import {
-  Box, Container, Typography, IconButton, Menu, MenuItem, Avatar, Button, Dialog, DialogTitle, DialogContent, DialogActions, Select, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Checkbox
+  Box, Container, Typography, IconButton, Menu, MenuItem, Avatar,
+  Select, TextField, Button, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, FormControl, Paper, Dialog, DialogTitle,
+  DialogContent, DialogActions, Checkbox
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import SaveIcon from '@mui/icons-material/Save';
 import CalculateIcon from "@mui/icons-material/Calculate";
-import HistoryIcon from "@mui/icons-material/History";
+import SaveIcon from '@mui/icons-material/Save';
+import { auth } from "../lib/firebase";
 
 export default function CalculatorPage() {
   const [user, setUser] = useState(null);
@@ -19,6 +21,8 @@ export default function CalculatorPage() {
   const [criteria, setCriteria] = useState([{ name: "", type: "Benefit", weight: "", active: true }]);
   const [alternatives, setAlternatives] = useState([]);
   const [results, setResults] = useState([]);
+  const [saveStatus, setSaveStatus] = useState(null);
+  const [saveError, setSaveError] = useState(null);
 
   const router = useRouter();
 
@@ -55,9 +59,47 @@ export default function CalculatorPage() {
     setAboutOpen(false);
   };
 
+  const removeAlternative = (index) => {
+    setAlternatives(alternatives.filter((_, i) => i !== index));
+  };
+
+  const updateAlternativeValue = (altIndex, critIndex, value) => {
+    const updatedAlternatives = [...alternatives];
+    updatedAlternatives[altIndex].values[critIndex] = value || "";
+    setAlternatives(updatedAlternatives);
+  };
+
+  const toggleAlternativeActive = (index) => {
+    const updatedAlternatives = [...alternatives];
+    updatedAlternatives[index].active = !updatedAlternatives[index].active;
+    setAlternatives(updatedAlternatives);
+  };
+
+  const toggleCriteriaActive = (index) => {
+    const updatedCriteria = [...criteria];
+    updatedCriteria[index].active = !updatedCriteria[index].active;
+    setCriteria(updatedCriteria);
+  };
+
   const normalizeWeights = (criteria) => {
     const totalWeight = criteria.reduce((acc, c) => acc + parseFloat(c.weight), 0);
     return criteria.map(c => ({ ...c, weight: parseFloat(c.weight) / totalWeight }));
+  };
+
+  const calculateResults = () => {
+    let calculatedResults = [];
+
+    const normalizedCriteria = normalizeWeights(criteria.filter(c => c.active));
+
+    if (method === "SAW") {
+      calculatedResults = calculateSAW(normalizedCriteria);
+    } else if (method === "TOPSIS") {
+      calculatedResults = calculateTOPSIS(normalizedCriteria);
+    } else if (method === "WP") {
+      calculatedResults = calculateWP(normalizedCriteria);
+    }
+
+    setResults(calculatedResults);
   };
 
   const calculateSAW = (normalizedCriteria) => {
@@ -134,22 +176,6 @@ export default function CalculatorPage() {
     return scores.sort((a, b) => b.score - a.score);
   };
 
-  const calculateResults = () => {
-    let calculatedResults = [];
-
-    const normalizedCriteria = normalizeWeights(criteria.filter(c => c.active));
-
-    if (method === "SAW") {
-      calculatedResults = calculateSAW(normalizedCriteria);
-    } else if (method === "TOPSIS") {
-      calculatedResults = calculateTOPSIS(normalizedCriteria);
-    } else if (method === "WP") {
-      calculatedResults = calculateWP(normalizedCriteria);
-    }
-
-    setResults(calculatedResults);
-  };
-
   const saveResults = async () => {
     try {
       const response = await fetch('/api/saveResults', {
@@ -161,12 +187,15 @@ export default function CalculatorPage() {
       });
       const data = await response.json();
       if (response.ok) {
-        alert('Results saved successfully.');
+        setSaveStatus('Results saved successfully.');
+        setSaveError(null);
       } else {
-        alert(data.error || 'Failed to save results.');
+        setSaveStatus(null);
+        setSaveError(data.error || 'Failed to save results.');
       }
     } catch (error) {
-      alert('Failed to save results.');
+      setSaveStatus(null);
+      setSaveError('Failed to save results.');
     }
   };
 
