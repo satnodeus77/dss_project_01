@@ -79,7 +79,7 @@ export default function HomePage() {
             <Button
               variant="text"
               startIcon={<CalculateIcon sx={{ color: "gray" }} />}
-              sx={{ color: "white", textTransform: "none", fontWeight: "bold", marginRight: 2 }}
+              sx={{ color: "white", textTransform: "none", fontWeight: "bold", fontSize: "1rem", marginRight: 2 }}
               onClick={() => router.push('/CalculatorPage')}
             >
               Calculator
@@ -89,14 +89,14 @@ export default function HomePage() {
             <Button
               variant="text"
               startIcon={<HistoryIcon sx={{ color: "gray" }} />}
-              sx={{ color: "white", textTransform: "none", fontWeight: "bold", marginRight: 2 }}
+              sx={{ color: "white", textTransform: "none", fontWeight: "bold", fontSize: "1rem", marginRight: 2 }}
               onClick={() => router.push('/HistoryPage')}
             >
               History
             </Button>
 
             {/* User Info */}
-            <Typography variant="body1" sx={{ fontWeight: "bold", marginRight: 2 }}>
+            <Typography variant="body1" sx={{ fontWeight: "bold", fontSize: "1rem", marginRight: 2 }}>
               {user.displayName}
             </Typography>
             <IconButton onClick={handleMenuOpen}>
