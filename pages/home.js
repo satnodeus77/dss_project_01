@@ -56,7 +56,6 @@ export default function HomePage() {
     setAboutOpen(false);
   };
 
-  // ✅ Function to Add Criteria
   const addCriterion = () => {
     setCriteria([...criteria, { name: "", type: "Benefit", weight: "" }]);
     setAlternatives(alternatives.map(alt => ({
@@ -65,7 +64,6 @@ export default function HomePage() {
     })));
   };
 
-  // ✅ Function to Remove Criteria
   const removeCriterion = (index) => {
     setCriteria(criteria.filter((_, i) => i !== index));
     setAlternatives(alternatives.map(alt => {
@@ -74,12 +72,10 @@ export default function HomePage() {
     }));
   };
 
-  // ✅ Function to Add Alternative
   const addAlternative = () => {
     setAlternatives([...alternatives, { name: "", values: Array(criteria.length).fill("") }]);
   };
 
-  // ✅ Function to Remove Alternative
   const removeAlternative = (index) => {
     setAlternatives(alternatives.filter((_, i) => i !== index));
   };
@@ -174,7 +170,7 @@ export default function HomePage() {
           </Select>
         </FormControl>
 
-        {/* ✅ Criteria Section Restored */}
+        {/* ✅ Criteria Section */}
         <Typography variant="h6">Criteria</Typography>
         {criteria.map((c, index) => (
           <Box key={index} sx={{ display: "flex", gap: 2, mb: 1 }}>
@@ -191,7 +187,7 @@ export default function HomePage() {
         ))}
         <Button startIcon={<AddIcon />} onClick={addCriterion}>Add Criteria</Button>
 
-        {/* ✅ Alternatives Section Restored */}
+        {/* ✅ Alternatives Section */}
         <Typography variant="h6" sx={{ mt: 3 }}>Alternatives</Typography>
         <Button startIcon={<AddIcon />} sx={{ mb: 2 }} onClick={addAlternative}>Add Alternative</Button>
 
@@ -215,6 +211,11 @@ export default function HomePage() {
             </TableBody>
           </Table>
         </TableContainer>
+
+        {/* ✅ Calculate Results Button Restored */}
+        <Button fullWidth variant="contained" startIcon={<CalculateIcon />}>
+          Calculate Results
+        </Button>
       </Container>
     </Box>
   );
