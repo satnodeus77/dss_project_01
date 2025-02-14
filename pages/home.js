@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { auth } from "../lib/firebase";
 import { useRouter } from "next/router";
 import {
   Box, Container, Typography, IconButton, Menu, MenuItem, Avatar, Button, Dialog, DialogTitle, DialogContent, DialogActions
@@ -7,16 +6,12 @@ import {
 import LogoutIcon from "@mui/icons-material/Logout";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import HistoryIcon from "@mui/icons-material/History";
+import { auth } from "../lib/firebase";
 
 export default function HomePage() {
   const [user, setUser] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const [aboutOpen, setAboutOpen] = useState(false);
-  const [method, setMethod] = useState("SAW");
-  const [criteria, setCriteria] = useState([{ name: "", type: "Benefit", weight: "", active: true }]);
-  const [alternatives, setAlternatives] = useState([]);
-  const [results, setResults] = useState([]);
-  const [showCalculator, setShowCalculator] = useState(true);
 
   const router = useRouter();
 
@@ -51,42 +46,6 @@ export default function HomePage() {
 
   const handleAboutClose = () => {
     setAboutOpen(false);
-  };
-
-  const calculateResults = () => {
-    let calculatedResults = [];
-
-    const normalizedCriteria = normalizeWeights(criteria.filter(c => c.active));
-
-    if (method === "SAW") {
-      calculatedResults = calculateSAW(normalizedCriteria);
-    } else if (method === "TOPSIS") {
-      calculatedResults = calculateTOPSIS(normalizedCriteria);
-    } else if (method === "WP") {
-      calculatedResults = calculateWP(normalizedCriteria);
-    }
-
-    setResults(calculatedResults);
-  };
-
-  const saveResults = async () => {
-    try {
-      const response = await fetch('/api/saveResults', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userId: user.uid, method, results }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        alert('Results saved successfully.');
-      } else {
-        alert(data.error || 'Failed to save results.');
-      }
-    } catch (error) {
-      alert('Failed to save results.');
-    }
   };
 
   return (
@@ -191,14 +150,14 @@ export default function HomePage() {
               variant="contained"
               startIcon={<CalculateIcon />}
               sx={{ mr: 1 }}
-              onClick={() => router.push('/CalculatorPage')}
+              onClick={() => router.push('/calculatorPage')}
             >
               Calculator
             </Button>
             <Button
               variant="outlined"
               startIcon={<HistoryIcon />}
-              onClick={() => router.push('/HistoryPage')}
+              onClick={() => router.push('/historyPage')}
             >
               History
             </Button>
