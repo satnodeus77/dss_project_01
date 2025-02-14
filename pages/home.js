@@ -4,14 +4,10 @@ import { useRouter } from "next/router";
 import {
   Box, Container, Typography, IconButton, Menu, MenuItem, Avatar,
   Select, TextField, Button, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, FormControl, InputLabel, Paper, Divider, Dialog,
-  DialogTitle, DialogContent, DialogActions
+  TableHead, TableRow, FormControl, InputLabel, Paper, Dialog, DialogTitle,
+  DialogContent, DialogActions
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
-import AddIcon from "@mui/icons-material/Add";
-import DeleteIcon from "@mui/icons-material/Delete";
-import CalculateIcon from "@mui/icons-material/Calculate";
-import InfoIcon from "@mui/icons-material/Info";
 
 export default function HomePage() {
   const [user, setUser] = useState(null);
@@ -26,7 +22,7 @@ export default function HomePage() {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       if (!currentUser) {
-        router.push("/"); // Redirect to login if not authenticated
+        router.push("/");
       } else {
         setUser(currentUser);
       }
@@ -72,10 +68,10 @@ export default function HomePage() {
       <Box sx={{ position: "absolute", top: 16, right: 16, display: "flex", alignItems: "center", gap: 2 }}>
         {user && (
           <>
-            {/* About Button */}
-            <IconButton color="primary" onClick={handleAboutOpen}>
-              <InfoIcon />
-            </IconButton>
+            {/* About Label Button */}
+            <Button color="inherit" onClick={handleAboutOpen} sx={{ fontWeight: "bold", color: "white", textTransform: "none" }}>
+              About
+            </Button>
 
             {/* User Info */}
             <Typography variant="body1" sx={{ color: "white", fontWeight: "bold" }}>
@@ -143,16 +139,61 @@ export default function HomePage() {
           </Select>
         </FormControl>
 
-        <Divider sx={{ my: 2 }} />
+        {/* Criteria Section */}
+        <Typography variant="h6">Criteria</Typography>
+        {criteria.map((c, index) => (
+          <Box key={index} sx={{ display: "flex", gap: 2, mb: 1 }}>
+            <TextField fullWidth label="Criteria Name" value={c.name} onChange={(e) => {
+              const newCriteria = [...criteria];
+              newCriteria[index].name = e.target.value;
+              setCriteria(newCriteria);
+            }} />
+            <Select value={c.type} onChange={(e) => {
+              const newCriteria = [...criteria];
+              newCriteria[index].type = e.target.value;
+              setCriteria(newCriteria);
+            }}>
+              <MenuItem value="Benefit">Benefit</MenuItem>
+              <MenuItem value="Cost">Cost</MenuItem>
+            </Select>
+            <TextField type="number" label="Weight" value={c.weight} onChange={(e) => {
+              const newCriteria = [...criteria];
+              newCriteria[index].weight = e.target.value;
+              setCriteria(newCriteria);
+            }} />
+            <IconButton color="error" onClick={() => setCriteria(criteria.filter((_, i) => i !== index))}>
+              <DeleteIcon />
+            </IconButton>
+          </Box>
+        ))}
+        <Button startIcon={<AddIcon />} onClick={() => setCriteria([...criteria, { name: "", type: "Benefit", weight: "" }])}>Add Criteria</Button>
 
-        {/* Placeholder for DSS Input Forms */}
-        <Typography variant="h6">Criteria & Alternatives Section (Coming Next...)</Typography>
+        {/* Alternatives Section */}
+        <Typography variant="h6" sx={{ mt: 3 }}>Alternatives</Typography>
+        <Button startIcon={<AddIcon />} sx={{ mb: 2 }} onClick={() => setAlternatives([...alternatives, { name: "", values: Array(criteria.length).fill("") }])}>Add Alternative</Button>
 
-        <Divider sx={{ my: 2 }} />
+        <TableContainer component={Paper} sx={{ mb: 2 }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Alternative Name</TableCell>
+                {criteria.map((c, index) => <TableCell key={index}>{c.name || `Criteria ${index + 1}`}</TableCell>)}
+                <TableCell>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {alternatives.map((alt, altIndex) => (
+                <TableRow key={altIndex}>
+                  <TableCell><TextField fullWidth value={alt.name} onChange={(e) => updateAlternativeName(altIndex, e.target.value)} /></TableCell>
+                  {criteria.map((_, critIndex) => <TableCell key={critIndex}><TextField type="number" /></TableCell>)}
+                  <TableCell><IconButton color="error" onClick={() => setAlternatives(alternatives.filter((_, i) => i !== altIndex))}><DeleteIcon /></IconButton></TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
-        <Button fullWidth startIcon={<CalculateIcon />} variant="contained">
-          Calculate Results
-        </Button>
+        <Button fullWidth variant="contained">Calculate Results</Button>
       </Container>
     </Box>
   );
