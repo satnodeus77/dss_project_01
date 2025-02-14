@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import {
-  Box, Container, Typography, IconButton, Menu, MenuItem, Avatar, Button
+  Box, Container, Typography, IconButton, Menu, MenuItem, Avatar, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import CalculateIcon from "@mui/icons-material/Calculate";
@@ -11,6 +11,7 @@ import { auth } from "../lib/firebase";
 export default function HistoryCalculationPage() {
   const [user, setUser] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [calculations, setCalculations] = useState([]);
 
   const router = useRouter();
 
@@ -20,11 +21,26 @@ export default function HistoryCalculationPage() {
         router.push("/");
       } else {
         setUser(currentUser);
+        fetchCalculations(currentUser.uid);
       }
     });
 
     return () => unsubscribe();
   }, [router]);
+
+  const fetchCalculations = async (userId) => {
+    try {
+      const response = await fetch(`/api/getCalculations?userId=${userId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setCalculations(data);
+      } else {
+        console.error('Failed to fetch calculations');
+      }
+    } catch (error) {
+      console.error('Error fetching calculations:', error);
+    }
+  };
 
   const handleLogout = () => {
     auth.signOut();
@@ -120,8 +136,45 @@ export default function HistoryCalculationPage() {
           History Page
         </Typography>
         <Typography variant="body1" sx={{ mb: 2 }}>
-          This page will display the history of calculations.
+          This page displays the history of your calculations.
         </Typography>
+
+        {calculations.length > 0 ? (
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Timestamp</TableCell>
+                  <TableCell>Method</TableCell>
+                  <TableCell>Criteria</TableCell>
+                  <TableCell>Alternatives</TableCell>
+                  <TableCell>Rank Results</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {calculations.map((calculation) => (
+                  <TableRow key={calculation.id}>
+                    <TableCell>{new Date(calculation.created_at).toLocaleString()}</TableCell>
+                    <TableCell>{calculation.method}</TableCell>
+                    <TableCell>
+                      <pre>{JSON.stringify(calculation.criteria, null, 2)}</pre>
+                    </TableCell>
+                    <TableCell>
+                      <pre>{JSON.stringify(calculation.alternatives, null, 2)}</pre>
+                    </TableCell>
+                    <TableCell>
+                      <pre>{JSON.stringify(calculation.rank_results, null, 2)}</pre>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        ) : (
+          <Typography variant="body1" sx={{ mt: 2 }}>
+            No calculations found.
+          </Typography>
+        )}
       </Container>
     </Box>
   );
