@@ -27,8 +27,6 @@ export default function CalculatorPage() {
 
   const router = useRouter();
 
-  //test
-
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       if (!currentUser) {
@@ -179,29 +177,6 @@ export default function CalculatorPage() {
     return scores.sort((a, b) => b.score - a.score);
   };
 
-  const saveResults = async () => {
-    try {
-      const response = await fetch('/api/saveResults', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userId: user.uid, method, results }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setSaveStatus('Results saved successfully.');
-        setSaveError(null);
-      } else {
-        setSaveStatus(null);
-        setSaveError(data.error || 'Failed to save results.');
-      }
-    } catch (error) {
-      setSaveStatus(null);
-      setSaveError('Failed to save results.');
-    }
-  };
-
   return (
     <Box
       sx={{
@@ -304,14 +279,14 @@ export default function CalculatorPage() {
               variant="contained"
               startIcon={<CalculateIcon />}
               sx={{ mr: 1 }}
-              onClick={() => router.push('/calculatorPage')}
+              onClick={() => router.push('/CalculatorPage')}
             >
               Calculator
             </Button>
             <Button
               variant="outlined"
               startIcon={<HistoryIcon />}
-              onClick={() => router.push('/historyPage')}
+              onClick={() => router.push('/HistoryPage')}
             >
               History
             </Button>

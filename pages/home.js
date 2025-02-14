@@ -150,14 +150,14 @@ export default function HomePage() {
               variant="contained"
               startIcon={<CalculateIcon />}
               sx={{ mr: 1 }}
-              onClick={() => router.push('/calculatorPage')}
+              onClick={() => router.push('/CalculatorPage')}
             >
               Calculator
             </Button>
             <Button
               variant="outlined"
               startIcon={<HistoryIcon />}
-              onClick={() => router.push('/historyPage')}
+              onClick={() => router.push('/HistoryPage')}
             >
               History
             </Button>

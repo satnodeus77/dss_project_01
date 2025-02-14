@@ -1,18 +1,29 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import {
-  Box, Container, Typography, IconButton, ListItem, ListItemText, Avatar, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Button
+  Box, Container, Typography, IconButton, Menu, MenuItem, Avatar,
+  Select, TextField, Button, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, FormControl, Paper, Dialog, DialogTitle,
+  DialogContent, DialogActions, Checkbox
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import LogoutIcon from "@mui/icons-material/Logout";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import CalculateIcon from "@mui/icons-material/Calculate";
+import SaveIcon from '@mui/icons-material/Save';
+import HistoryIcon from '@mui/icons-material/History';
 import { auth } from "../lib/firebase";
 
-export default function HistoryPage() {
+export default function CalculatorPage() {
   const [user, setUser] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const [aboutOpen, setAboutOpen] = useState(false);
-  const [savedResults, setSavedResults] = useState([]);
+  const [method, setMethod] = useState("SAW");
+  const [criteria, setCriteria] = useState([{ name: "", type: "Benefit", weight: "", active: true }]);
+  const [alternatives, setAlternatives] = useState([]);
+  const [results, setResults] = useState([]);
+  const [saveStatus, setSaveStatus] = useState(null);
+  const [saveError, setSaveError] = useState(null);
 
   const router = useRouter();
 
@@ -27,22 +38,6 @@ export default function HistoryPage() {
 
     return () => unsubscribe();
   }, [router]);
-
-  useEffect(() => {
-    if (user) {
-      const fetchSavedResults = async () => {
-        try {
-          const response = await fetch(`/api/getResults?userId=${user.uid}`);
-          const data = await response.json();
-          setSavedResults(data.results);
-        } catch (error) {
-          console.error('Error fetching saved results:', error);
-        }
-      };
-
-      fetchSavedResults();
-    }
-  }, [user]);
 
   const handleLogout = () => {
     auth.signOut();
@@ -65,17 +60,121 @@ export default function HistoryPage() {
     setAboutOpen(false);
   };
 
-  const deleteResult = async (resultId) => {
-    try {
-      await fetch(`/api/deleteResult?id=${resultId}`, { method: 'DELETE' });
-      setSavedResults(savedResults.filter(result => result.id !== resultId));
-    } catch (error) {
-      console.error('Error deleting result:', error);
-    }
+  const removeAlternative = (index) => {
+    setAlternatives(alternatives.filter((_, i) => i !== index));
   };
 
-  const viewResult = (resultId) => {
-    // Implement view result functionality
+  const updateAlternativeValue = (altIndex, critIndex, value) => {
+    const updatedAlternatives = [...alternatives];
+    updatedAlternatives[altIndex].values[critIndex] = value || "";
+    setAlternatives(updatedAlternatives);
+  };
+
+  const toggleAlternativeActive = (index) => {
+    const updatedAlternatives = [...alternatives];
+    updatedAlternatives[index].active = !updatedAlternatives[index].active;
+    setAlternatives(updatedAlternatives);
+  };
+
+  const toggleCriteriaActive = (index) => {
+    const updatedCriteria = [...criteria];
+    updatedCriteria[index].active = !updatedCriteria[index].active;
+    setCriteria(updatedCriteria);
+  };
+
+  const normalizeWeights = (criteria) => {
+    const totalWeight = criteria.reduce((acc, c) => acc + parseFloat(c.weight), 0);
+    return criteria.map(c => ({ ...c, weight: parseFloat(c.weight) / totalWeight }));
+  };
+
+  const calculateResults = () => {
+    let calculatedResults = [];
+
+    const normalizedCriteria = normalizeWeights(criteria.filter(c => c.active));
+
+    if (method === "SAW") {
+      calculatedResults = calculateSAW(normalizedCriteria);
+    } else if (method === "TOPSIS") {
+      calculatedResults = calculateTOPSIS(normalizedCriteria);
+    } else if (method === "WP") {
+      calculatedResults = calculateWP(normalizedCriteria);
+    }
+
+    setResults(calculatedResults);
+  };
+
+  const calculateSAW = (normalizedCriteria) => {
+    const activeAlternatives = alternatives.filter(a => a.active);
+
+    const normalizedAlternatives = activeAlternatives.map((alt) => {
+      const normalizedValues = alt.values.map((value, index) => {
+        const criterion = normalizedCriteria[index];
+        const maxValue = Math.max(...activeAlternatives.map((a) => parseFloat(a.values[index])));
+        const minValue = Math.min(...activeAlternatives.map((a) => parseFloat(a.values[index])));
+        return criterion.type === "Benefit" ? value / maxValue : minValue / value;
+      });
+      return { ...alt, normalizedValues };
+    });
+
+    const scores = normalizedAlternatives.map((alt) => {
+      const score = alt.normalizedValues.reduce((acc, value, index) => {
+        return acc + value * normalizedCriteria[index].weight;
+      }, 0);
+      return { name: alt.name, score: parseFloat(score.toFixed(3)) };
+    });
+
+    return scores.sort((a, b) => b.score - a.score);
+  };
+
+  const calculateTOPSIS = (normalizedCriteria) => {
+    const activeAlternatives = alternatives.filter(a => a.active);
+
+    const normalizedAlternatives = activeAlternatives.map((alt) => {
+      const normalizedValues = alt.values.map((value, index) => {
+        const sumOfSquares = Math.sqrt(activeAlternatives.reduce((acc, a) => acc + Math.pow(parseFloat(a.values[index]), 2), 0));
+        return value / sumOfSquares;
+      });
+      return { ...alt, normalizedValues };
+    });
+
+    const weightedAlternatives = normalizedAlternatives.map((alt) => {
+      const weightedValues = alt.normalizedValues.map((value, index) => value * normalizedCriteria[index].weight);
+      return { ...alt, weightedValues };
+    });
+
+    const idealBest = normalizedCriteria.map((criterion, index) => {
+      return criterion.type === "Benefit"
+        ? Math.max(...weightedAlternatives.map((alt) => alt.weightedValues[index]))
+        : Math.min(...weightedAlternatives.map((alt) => alt.weightedValues[index]));
+    });
+
+    const idealWorst = normalizedCriteria.map((criterion, index) => {
+      return criterion.type === "Benefit"
+        ? Math.min(...weightedAlternatives.map((alt) => alt.weightedValues[index]))
+        : Math.max(...weightedAlternatives.map((alt) => alt.weightedValues[index]));
+    });
+
+    const scores = weightedAlternatives.map((alt) => {
+      const distanceToBest = Math.sqrt(alt.weightedValues.reduce((acc, value, index) => acc + Math.pow(value - idealBest[index], 2), 0));
+      const distanceToWorst = Math.sqrt(alt.weightedValues.reduce((acc, value, index) => acc + Math.pow(value - idealWorst[index], 2), 0));
+      const score = distanceToWorst / (distanceToBest + distanceToWorst);
+      return { name: alt.name, score: parseFloat(score.toFixed(3)) };
+    });
+
+    return scores.sort((a, b) => b.score - a.score);
+  };
+
+  const calculateWP = (normalizedCriteria) => {
+    const activeAlternatives = alternatives.filter(a => a.active);
+
+    const scores = activeAlternatives.map((alt) => {
+      const score = alt.values.reduce((acc, value, index) => {
+        return acc * Math.pow(parseFloat(value), normalizedCriteria[index].weight);
+      }, 1);
+      return { name: alt.name, score: parseFloat(score.toFixed(3)) };
+    });
+
+    return scores.sort((a, b) => b.score - a.score);
   };
 
   return (
@@ -160,7 +259,7 @@ export default function HistoryPage() {
         </DialogActions>
       </Dialog>
 
-      {/* Main History Section */}
+      {/* Main DSS Section */}
       <Container
         sx={{
           backgroundColor: "white",
@@ -171,25 +270,28 @@ export default function HistoryPage() {
           boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
-          Calculation History
-        </Typography>
-        {savedResults.map((result) => (
-          <ListItem key={result.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <ListItemText
-              primary={result.method_name}
-              secondary={`Score: ${result.score}`}
-            />
-            <Box>
-              <IconButton color="error" onClick={() => deleteResult(result.id)}>
-                <DeleteIcon />
-              </IconButton>
-              <IconButton color="primary" onClick={() => viewResult(result.id)}>
-                <ArrowForwardIcon />
-              </IconButton>
-            </Box>
-          </ListItem>
-        ))}
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+          <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+            Decision Support System Framework
+          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Button
+              variant="contained"
+              startIcon={<CalculateIcon />}
+              sx={{ mr: 1 }}
+              onClick={() => router.push('/CalculatorPage')}
+            >
+              Calculator
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<HistoryIcon />}
+              onClick={() => router.push('/HistoryPage')}
+            >
+              History
+            </Button>
+          </Box>
+        </Box>
       </Container>
     </Box>
   );
