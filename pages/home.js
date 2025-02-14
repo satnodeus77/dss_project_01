@@ -74,68 +74,42 @@ export default function HomePage() {
         }}
       >
         {user && (
-          <>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
             {/* User Info */}
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Typography variant="body1" sx={{ fontWeight: "bold", marginRight: 2 }}>
-                {user.displayName}
-              </Typography>
-              <IconButton onClick={handleMenuOpen}>
-                <Avatar src={user.photoURL} sx={{ width: 40, height: 40 }} />
-              </IconButton>
-              <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-                <MenuItem disabled>{user.email}</MenuItem>
-                <MenuItem onClick={handleLogout}>
-                  <LogoutIcon sx={{ mr: 1 }} />
-                  Logout
-                </MenuItem>
-              </Menu>
-            </Box>
+            <Typography variant="body1" sx={{ fontWeight: "bold", marginRight: 2 }}>
+              {user.displayName}
+            </Typography>
+            <IconButton onClick={handleMenuOpen}>
+              <Avatar src={user.photoURL} sx={{ width: 40, height: 40 }} />
+            </IconButton>
+            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+              <MenuItem disabled>{user.email}</MenuItem>
+              <MenuItem onClick={handleLogout}>
+                <LogoutIcon sx={{ mr: 1 }} />
+                Logout
+              </MenuItem>
+            </Menu>
 
             {/* Calculator and History Buttons */}
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Button
-                variant="contained"
-                startIcon={<CalculateIcon />}
-                sx={{ mr: 1 }}
-                onClick={() => router.push('/CalculatorPage')}
-              >
-                Calculator
-              </Button>
-              <Button
-                variant="outlined"
-                startIcon={<HistoryIcon />}
-                onClick={() => router.push('/HistoryPage')}
-              >
-                History
-              </Button>
-            </Box>
-          </>
+            <Button
+              variant="contained"
+              startIcon={<CalculateIcon />}
+              sx={{ ml: 2 }}
+              onClick={() => router.push('/CalculatorPage')}
+            >
+              Calculator
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<HistoryIcon />}
+              sx={{ ml: 2 }}
+              onClick={() => router.push('/HistoryPage')}
+            >
+              History
+            </Button>
+          </Box>
         )}
       </Box>
-
-      {/* About Dialog */}
-      <Dialog open={aboutOpen} onClose={handleAboutClose}>
-        <DialogTitle>About DSS Project MMI</DialogTitle>
-        <DialogContent>
-          <Typography>
-            Welcome to DSS Project MMI
-            <br />
-            This project is developed to provide a framework for Decision Support Systems.
-            <br />
-            Contributors:
-            <br />
-            24/546050/PPA/06833 - Aziz Hendra Atmadja
-            <br />
-            24/548101/PPA/06919 - Marta Zuriadi
-            <br />
-            24/548140/PPA/06921 - Silvanus Satno Nugraha
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleAboutClose}>Close</Button>
-        </DialogActions>
-      </Dialog>
 
       {/* Main DSS Section */}
       <Container
@@ -146,13 +120,25 @@ export default function HomePage() {
           borderRadius: "10px",
           mt: 4,
           boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+          textAlign: "center",
         }}
       >
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-          <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-            Decision Support System Framework
-          </Typography>
-        </Box>
+        <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2 }}>
+          Welcome to DSS Project MMI
+        </Typography>
+        <Typography variant="body1" sx={{ mb: 2 }}>
+          This project is developed to provide a framework for Decision Support Systems.
+        </Typography>
+        <Typography variant="body1" sx={{ mb: 2 }}>
+          Contributors:
+        </Typography>
+        <Typography variant="body1">
+          24/546050/PPA/06833 - Aziz Hendra Atmadja
+          <br />
+          24/548101/PPA/06919 - Marta Zuriadi
+          <br />
+          24/548140/PPA/06921 - Silvanus Satno Nugraha
+        </Typography>
       </Container>
     </Box>
   );
