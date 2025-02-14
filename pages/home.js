@@ -68,7 +68,7 @@ export default function HomePage() {
           backgroundColor: "rgba(0, 0, 0, 0.6)",
           color: "white",
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "flex-end",
           alignItems: "center",
           padding: "10px 20px",
         }}
