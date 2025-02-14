@@ -131,89 +131,80 @@ export default function HomePage() {
     return scoredAlternatives;
   };
 
-  // ✅ TOPSIS Calculation
-  const calculateTOPSIS = () => {
-    let normalized = alternatives.map(alt => ({
-      name: alt.name,
-      values: alt.values.map((val, i) =>
-        val / Math.sqrt(alternatives.reduce((sum, a) => sum + a.values[i] ** 2, 0))
-      )
-    }));
-
-    let weighted = normalized.map(alt => ({
-      name: alt.name,
-      values: alt.values.map((val, i) => val * criteria[i].weight)
-    }));
-
-    let idealBest = criteria.map((crit, i) =>
-      crit.type === "Benefit"
-        ? Math.max(...weighted.map(a => a.values[i]))
-        : Math.min(...weighted.map(a => a.values[i]))
-    );
-
-    let idealWorst = criteria.map((crit, i) =>
-      crit.type === "Benefit"
-        ? Math.min(...weighted.map(a => a.values[i]))
-        : Math.max(...weighted.map(a => a.values[i]))
-    );
-
-    let scores = weighted.map(alt => {
-      let distBest = Math.sqrt(alt.values.reduce((sum, val, i) => sum + (val - idealBest[i]) ** 2, 0));
-      let distWorst = Math.sqrt(alt.values.reduce((sum, val, i) => sum + (val - idealWorst[i]) ** 2, 0));
-      return {
-        name: alt.name,
-        score: distWorst / (distBest + distWorst)
-      };
-    });
-
-    return scores;
-  };
-
-  // ✅ WP Calculation
-  const calculateWP = () => {
-    let scores = alternatives.map(alt => ({
-      name: alt.name,
-      score: alt.values.reduce((prod, val, i) =>
-        prod * Math.pow(val, (criteria[i].type === "Benefit" ? 1 : -1) * criteria[i].weight), 1)
-    }));
-
-    return scores;
-  };
-
   return (
-    <Container sx={{ mt: 4, backgroundColor: "white", padding: "2rem", borderRadius: "10px" }}>
-      <Typography variant="h4" sx={{ textAlign: "center", fontWeight: "bold", mb: 2 }}>
-        Decision Support System Framework
-      </Typography>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        backgroundImage: "url('/dss-background.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        paddingTop: "40px",
+      }}
+    >
+      <Container sx={{ backgroundColor: "white", width: "70%", padding: "2rem", borderRadius: "10px" }}>
+        <Typography variant="h4" sx={{ textAlign: "center", fontWeight: "bold", mb: 2 }}>
+          Decision Support System Framework
+        </Typography>
 
-      {/* Calculate Button */}
-      <Button fullWidth startIcon={<CalculateIcon />} variant="contained" onClick={calculateResults}>
-        Calculate Results
-      </Button>
+        {/* DSS Method Selection */}
+        <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
+          Decision Support Method
+        </Typography>
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <Select value={method} onChange={(e) => setMethod(e.target.value)}>
+            <MenuItem value="SAW">Simple Additive Weighting (SAW)</MenuItem>
+            <MenuItem value="TOPSIS">Technique for Order Preference by Similarity to Ideal Solution (TOPSIS)</MenuItem>
+            <MenuItem value="WP">Weighted Product Model (WP)</MenuItem>
+          </Select>
+        </FormControl>
 
-      {/* Results Section */}
-      {results.length > 0 && (
-        <TableContainer component={Paper} sx={{ mt: 3 }}>
+        {/* Criteria Section */}
+        <Typography variant="h6">Criteria</Typography>
+        {criteria.map((c, index) => (
+          <Box key={index} sx={{ display: "flex", gap: 2, mb: 1 }}>
+            <TextField fullWidth label="Criteria Name" value={c.name} />
+            <Select value={c.type}>
+              <MenuItem value="Benefit">Benefit</MenuItem>
+              <MenuItem value="Cost">Cost</MenuItem>
+            </Select>
+            <TextField type="number" label="Weight" value={c.weight} />
+            <IconButton color="error" onClick={() => removeCriterion(index)}>
+              <DeleteIcon />
+            </IconButton>
+          </Box>
+        ))}
+        <Button startIcon={<AddIcon />} onClick={addCriterion}>Add Criteria</Button>
+
+        {/* Alternatives Section */}
+        <Typography variant="h6" sx={{ mt: 3 }}>Alternatives</Typography>
+        <Button startIcon={<AddIcon />} sx={{ mb: 2 }} onClick={addAlternative}>Add Alternative</Button>
+
+        <TableContainer component={Paper} sx={{ mb: 2 }}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Rank</TableCell>
-                <TableCell>Alternative</TableCell>
-                <TableCell>Score</TableCell>
+                <TableCell>Alternative Name</TableCell>
+                {criteria.map((c, index) => <TableCell key={index}>{c.name || `Criteria ${index + 1}`}</TableCell>)}
+                <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {results.map((res, index) => (
-                <TableRow key={index}>
-                  <TableCell>{index + 1}</TableCell>
-                  <TableCell>{res.name}</TableCell>
-                  <TableCell>{res.score.toFixed(4)}</TableCell>
+              {alternatives.map((alt, altIndex) => (
+                <TableRow key={altIndex}>
+                  <TableCell><TextField fullWidth value={alt.name} /></TableCell>
+                  {criteria.map((_, critIndex) => <TableCell key={critIndex}><TextField type="number" /></TableCell>)}
+                  <TableCell><IconButton color="error" onClick={() => removeAlternative(altIndex)}><DeleteIcon /></IconButton></TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
-      )}
-    </Container>
+
+        <Button fullWidth startIcon={<CalculateIcon />} variant="contained" onClick={calculateResults}>Calculate Results</Button>
+      </Container>
+    </Box>
   );
 }
