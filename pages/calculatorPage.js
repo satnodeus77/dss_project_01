@@ -192,7 +192,7 @@ export default function CalculatorPage() {
     const userId = user.uid;
     const methodShortName = method;
     const resultsToSave = results.map((result, index) => ({
-      alternativeId: index + 1, // Assuming alternativeId is the index + 1
+      alternativeId: alternatives[index]?.id || index + 1, // Ensure valid alternativeId
       score: result.score,
       rank: index + 1,
     }));
