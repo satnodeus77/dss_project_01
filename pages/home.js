@@ -313,14 +313,16 @@ export default function HomePage() {
                 setCriteria(updatedCriteria);
               }}
             />
-            <IconButton color="error" onClick={() => setCriteria(criteria.filter((_, i) => i !== index))}>
-              <DeleteIcon />
-            </IconButton>
-            <Checkbox
-              checked={c.active}
-              onChange={() => toggleCriteriaActive(index)}
-              color="primary"
-            />
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <IconButton color="error" onClick={() => setCriteria(criteria.filter((_, i) => i !== index))}>
+                <DeleteIcon />
+              </IconButton>
+              <Checkbox
+                checked={c.active}
+                onChange={() => toggleCriteriaActive(index)}
+                color="primary"
+              />
+            </Box>
           </Box>
         ))}
         <Button startIcon={<AddIcon />} onClick={() => setCriteria([...criteria, { name: "", type: "Benefit", weight: "", active: true }])}>Add Criteria</Button>
@@ -370,14 +372,16 @@ export default function HomePage() {
                     </TableCell>
                   ))}
                   <TableCell>
-                    <IconButton color="error" onClick={() => removeAlternative(altIndex)}>
-                      <DeleteIcon />
-                    </IconButton>
-                    <Checkbox
-                      checked={alt.active}
-                      onChange={() => toggleAlternativeActive(altIndex)}
-                      color="primary"
-                    />
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <IconButton color="error" onClick={() => removeAlternative(altIndex)}>
+                        <DeleteIcon />
+                      </IconButton>
+                      <Checkbox
+                        checked={alt.active}
+                        onChange={() => toggleAlternativeActive(altIndex)}
+                        color="primary"
+                      />
+                    </Box>
                   </TableCell>
                 </TableRow>
               ))}
