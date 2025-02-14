@@ -5,7 +5,7 @@ import {
   Box, Container, Typography, IconButton, Menu, MenuItem, Avatar,
   Select, TextField, Button, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, FormControl, Paper, Dialog, DialogTitle,
-  DialogContent, DialogActions, Checkbox, Switch, FormControlLabel
+  DialogContent, DialogActions, Checkbox
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AddIcon from "@mui/icons-material/Add";
@@ -271,10 +271,21 @@ export default function HomePage() {
           <Typography variant="h4" sx={{ fontWeight: "bold" }}>
             Decision Support System Framework
           </Typography>
-          <FormControlLabel
-            control={<Switch checked={showCalculator} onChange={() => setShowCalculator(!showCalculator)} />}
-            label={showCalculator ? "Calculator" : "History"}
-          />
+          <Box>
+            <Button
+              variant={showCalculator ? "contained" : "outlined"}
+              onClick={() => setShowCalculator(true)}
+              sx={{ mr: 1 }}
+            >
+              Calculator
+            </Button>
+            <Button
+              variant={!showCalculator ? "contained" : "outlined"}
+              onClick={() => setShowCalculator(false)}
+            >
+              History
+            </Button>
+          </Box>
         </Box>
 
         {showCalculator ? (
