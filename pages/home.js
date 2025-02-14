@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AddIcon from "@mui/icons-material/Add";
-import DeleteIcon from "@mui/icons-material/Delete";  // ✅ FIXED: Added Missing Import
+import DeleteIcon from "@mui/icons-material/Delete"; 
 import CalculateIcon from "@mui/icons-material/Calculate";
 
 export default function HomePage() {
@@ -65,24 +65,36 @@ export default function HomePage() {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
+        paddingTop: "80px", // ✅ Lowered content
       }}
     >
-      {/* User Profile, About Menu & Logout Button */}
-      <Box sx={{ position: "absolute", top: 16, right: 16, display: "flex", alignItems: "center", gap: 2 }}>
+      {/* Sticky Header with Username & About Button */}
+      <Box sx={{
+        position: "fixed",
+        top: 0,
+        width: "100%",
+        backgroundColor: "rgba(0, 0, 0, 0.6)", 
+        color: "white",
+        display: "flex",
+        justifyContent: "flex-end",
+        alignItems: "center",
+        padding: "10px 20px",
+        zIndex: 1000, 
+      }}>
         {user && (
           <>
-            {/* About Label Button */}
-            <Button color="inherit" onClick={handleAboutOpen} sx={{ fontWeight: "bold", color: "white", textTransform: "none" }}>
+            {/* About Button */}
+            <Button color="inherit" onClick={handleAboutOpen} sx={{ fontWeight: "bold", textTransform: "none", marginRight: 2 }}>
               About
             </Button>
 
             {/* User Info */}
-            <Typography variant="body1" sx={{ color: "white", fontWeight: "bold" }}>
+            <Typography variant="body1" sx={{ fontWeight: "bold", marginRight: 2 }}>
               {user.displayName}
             </Typography>
 
             {/* User Avatar */}
-            <IconButton onClick={handleMenuOpen} sx={{ display: "flex", alignItems: "center" }}>
+            <IconButton onClick={handleMenuOpen}>
               <Avatar src={user.photoURL} sx={{ width: 40, height: 40 }} />
             </IconButton>
 
