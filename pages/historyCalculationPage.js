@@ -7,7 +7,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import HistoryIcon from "@mui/icons-material/History";
 import { auth } from "../lib/firebase";
-import ReactJson from 'react-json-view';
+import { JSONTree } from 'react-json-tree';
 
 export default function HistoryCalculationPage() {
   const [user, setUser] = useState(null);
@@ -158,13 +158,13 @@ export default function HistoryCalculationPage() {
                     <TableCell>{new Date(calculation.created_at).toLocaleString()}</TableCell>
                     <TableCell>{calculation.method}</TableCell>
                     <TableCell>
-                      <ReactJson src={calculation.criteria} collapsed={true} />
+                      <JSONTree data={calculation.criteria} shouldExpandNode={() => false} />
                     </TableCell>
                     <TableCell>
-                      <ReactJson src={calculation.alternatives} collapsed={true} />
+                      <JSONTree data={calculation.alternatives} shouldExpandNode={() => false} />
                     </TableCell>
                     <TableCell>
-                      <ReactJson src={calculation.rank_results} collapsed={true} />
+                      <JSONTree data={calculation.rank_results} shouldExpandNode={() => false} />
                     </TableCell>
                   </TableRow>
                 ))}
