@@ -12,6 +12,11 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import HistoryIcon from "@mui/icons-material/History";
+import SaveIcon from '@mui/icons-material/Save';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+
 
 export default function HomePage() {
   const [user, setUser] = useState(null);
@@ -22,8 +27,25 @@ export default function HomePage() {
   const [alternatives, setAlternatives] = useState([]);
   const [results, setResults] = useState([]);
   const [showCalculator, setShowCalculator] = useState(true);
+  const [saveStatus, setSaveStatus] = useState(null); // Line 22
+  const [saveError, setSaveError] = useState(null); // Line 23
+  const [savedResults, setSavedResults] = useState([]); 
+  
 
   const router = useRouter();
+
+  const deleteResult = async (resultId) => {
+    try {
+      await fetch(`/api/deleteResult?id=${resultId}`, { method: 'DELETE' });
+      setSavedResults(savedResults.filter(result => result.id !== resultId));
+    } catch (error) {
+      console.error('Error deleting result:', error);
+    }
+  };
+  
+  const viewResult = (resultId) => {
+    // Implement view result functionality
+  };
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
@@ -36,6 +58,22 @@ export default function HomePage() {
 
     return () => unsubscribe();
   }, [router]);
+
+  useEffect(() => {
+    if (!showCalculator) {
+      const fetchSavedResults = async () => {
+        try {
+          const response = await fetch(`/api/getResults?userId=${user.uid}`);
+          const data = await response.json();
+          setSavedResults(data.results);
+        } catch (error) {
+          console.error('Error fetching saved results:', error);
+        }
+      };
+  
+      fetchSavedResults();
+    }
+  }, [showCalculator, user]);
 
   const handleLogout = () => {
     auth.signOut();
@@ -268,28 +306,38 @@ export default function HomePage() {
           boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-          <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-            Decision Support System Framework
-          </Typography>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Button
-              variant={showCalculator ? "contained" : "outlined"}
-              onClick={() => setShowCalculator(true)}
-              startIcon={<CalculateIcon />}
-              sx={{ mr: 1 }}
-            >
-              Calculator
-            </Button>
-            <Button
-              variant={!showCalculator ? "contained" : "outlined"}
-              onClick={() => setShowCalculator(false)}
-              startIcon={<HistoryIcon />}
-            >
-              History
-            </Button>
-          </Box>
-        </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+  <Typography variant="h6" sx={{ fontWeight: "bold" }}>Results</Typography>
+  <Button
+    variant="contained"
+    color="primary"
+    startIcon={<SaveIcon />}
+    onClick={async () => {
+      try {
+        const response = await fetch('/api/saveResults', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId: user.uid, method, results }),
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setSaveStatus('Results saved successfully.');
+          setSaveError(null);
+        } else {
+          setSaveStatus(null);
+          setSaveError(data.error || 'Failed to save results.');
+        }
+      } catch (error) {
+        setSaveStatus(null);
+        setSaveError('Failed to save results.');
+      }
+    }}
+  >
+    Save
+  </Button>
+</Box>
 
         {showCalculator ? (
           <>
@@ -417,11 +465,44 @@ export default function HomePage() {
             </TableContainer>
 
             <Button fullWidth variant="contained" onClick={calculateResults}>Calculate Results</Button>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+  <Typography variant="h6" sx={{ fontWeight: "bold" }}>Results</Typography>
+  <Button
+    variant="contained"
+    color="primary"
+    startIcon={<SaveIcon />}
+    onClick={async () => {
+      try {
+        const response = await fetch('/api/saveResults', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId: user.uid, method, results }),
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setSaveStatus('Results saved successfully.');
+          setSaveError(null);
+        } else {
+          setSaveStatus(null);
+          setSaveError(data.error || 'Failed to save results.');
+        }
+      } catch (error) {
+        setSaveStatus(null);
+        setSaveError('Failed to save results.');
+      }
+    }}
+  >
+    Save
+  </Button>
+</Box>
 
             {/* Results Section */}
             {results.length > 0 && (
               <Box sx={{ mt: 4 }}>
-                <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>Results</Typography>
+                {saveStatus && <Typography color="success.main">{saveStatus}</Typography>}
+                {saveError && <Typography color="error.main">{saveError}</Typography>}
                 <TableContainer component={Paper}>
                   <Table>
                     <TableHead>
@@ -446,7 +527,25 @@ export default function HomePage() {
             )}
           </>
         ) : (
-          <Typography variant="h5">Calculation History</Typography>
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>Calculation History</Typography>
+            {savedResults.map((result) => (
+              <ListItem key={result.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <ListItemText
+                  primary={result.method_name}
+                  secondary={`Score: ${result.score}`}
+                />
+                <Box>
+                  <IconButton color="error" onClick={() => deleteResult(result.id)}>
+                    <DeleteIcon />
+                  </IconButton>
+                  <IconButton color="primary" onClick={() => viewResult(result.id)}>
+                    <ArrowForwardIcon />
+                  </IconButton>
+                </Box>
+              </ListItem>
+            ))}
+          </Box>
         )}
       </Container>
     </Box>
