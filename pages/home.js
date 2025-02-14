@@ -4,16 +4,19 @@ import { useRouter } from "next/router";
 import {
   Box, Container, Typography, IconButton, Menu, MenuItem, Avatar,
   Select, TextField, Button, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, FormControl, InputLabel, Paper
+  TableHead, TableRow, FormControl, InputLabel, Paper, Divider, Dialog,
+  DialogTitle, DialogContent, DialogActions
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CalculateIcon from "@mui/icons-material/Calculate";
+import InfoIcon from "@mui/icons-material/Info";
 
 export default function HomePage() {
   const [user, setUser] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [aboutOpen, setAboutOpen] = useState(false);
   const [method, setMethod] = useState("SAW");
   const [criteria, setCriteria] = useState([{ name: "", type: "Benefit", weight: "" }]);
   const [alternatives, setAlternatives] = useState([]);
@@ -45,55 +48,12 @@ export default function HomePage() {
     setAnchorEl(null);
   };
 
-  // Add a new criterion
-  const addCriterion = () => {
-    setCriteria([...criteria, { name: "", type: "Benefit", weight: "" }]);
-
-    // Add an empty value for each alternative when a new criterion is added
-    setAlternatives(alternatives.map(alt => ({
-      ...alt,
-      values: [...alt.values, ""]
-    })));
+  const handleAboutOpen = () => {
+    setAboutOpen(true);
   };
 
-  // Remove a criterion
-  const removeCriterion = (index) => {
-    setCriteria(criteria.filter((_, i) => i !== index));
-
-    // Remove corresponding values from each alternative
-    setAlternatives(alternatives.map(alt => ({
-      ...alt,
-      values: alt.values.filter((_, i) => i !== index)
-    })));
-  };
-
-  // Add an alternative
-  const addAlternative = () => {
-    setAlternatives([...alternatives, { name: "", values: Array(criteria.length).fill("") }]);
-  };
-
-  // ✅ Fixed: Remove an alternative
-  const removeAlternative = (index) => {
-    setAlternatives(alternatives.filter((_, i) => i !== index));
-  };
-
-  // Update an alternative name
-  const updateAlternativeName = (index, value) => {
-    const updatedAlternatives = [...alternatives];
-    updatedAlternatives[index].name = value;
-    setAlternatives(updatedAlternatives);
-  };
-
-  // Update an alternative value
-  const updateAlternativeValue = (altIndex, critIndex, value) => {
-    const updatedAlternatives = [...alternatives];
-    updatedAlternatives[altIndex].values[critIndex] = value;
-    setAlternatives(updatedAlternatives);
-  };
-
-  // Calculate results (Placeholder for SAW/TOPSIS/WP logic)
-  const calculateResults = () => {
-    console.log(`Calculating results using method: ${method}`);
+  const handleAboutClose = () => {
+    setAboutOpen(false);
   };
 
   return (
@@ -108,15 +68,23 @@ export default function HomePage() {
         alignItems: "center",
       }}
     >
-      {/* User Profile & Logout Button */}
-      <Box sx={{ position: "absolute", top: 16, right: 16, display: "flex", alignItems: "center" }}>
+      {/* User Profile, About Menu & Logout Button */}
+      <Box sx={{ position: "absolute", top: 16, right: 16, display: "flex", alignItems: "center", gap: 2 }}>
         {user && (
           <>
+            {/* About Button */}
+            <IconButton color="primary" onClick={handleAboutOpen}>
+              <InfoIcon />
+            </IconButton>
+
+            {/* User Info */}
+            <Typography variant="body1" sx={{ color: "white", fontWeight: "bold" }}>
+              {user.displayName}
+            </Typography>
+
+            {/* User Avatar */}
             <IconButton onClick={handleMenuOpen} sx={{ display: "flex", alignItems: "center" }}>
-              <Avatar src={user.photoURL} sx={{ width: 40, height: 40, mr: 1 }} />
-              <Typography variant="body1" sx={{ color: "white", fontWeight: "bold" }}>
-                {user.displayName}
-              </Typography>
+              <Avatar src={user.photoURL} sx={{ width: 40, height: 40 }} />
             </IconButton>
 
             {/* Dropdown Menu */}
@@ -130,6 +98,25 @@ export default function HomePage() {
           </>
         )}
       </Box>
+
+      {/* About Dialog */}
+      <Dialog open={aboutOpen} onClose={handleAboutClose}>
+        <DialogTitle>About DSS Project MMI</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Welcome to DSS Project MMI
+            <br />
+            24/546050/PPA/06833 - Aziz Hendra Atmadja
+            <br />
+            24/548101/PPA/06919 - Marta Zuriadi
+            <br />
+            24/548140/PPA/06921 - Silvanus Satno Nugraha
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleAboutClose}>Close</Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Main DSS Section */}
       <Container
@@ -156,61 +143,16 @@ export default function HomePage() {
           </Select>
         </FormControl>
 
-        {/* Criteria Section */}
-        <Typography variant="h6">Criteria</Typography>
-        {criteria.map((c, index) => (
-          <Box key={index} sx={{ display: "flex", gap: 2, mb: 1 }}>
-            <TextField fullWidth label="Criteria Name" value={c.name} onChange={(e) => {
-              const newCriteria = [...criteria];
-              newCriteria[index].name = e.target.value;
-              setCriteria(newCriteria);
-            }} />
-            <Select value={c.type} onChange={(e) => {
-              const newCriteria = [...criteria];
-              newCriteria[index].type = e.target.value;
-              setCriteria(newCriteria);
-            }}>
-              <MenuItem value="Benefit">Benefit</MenuItem>
-              <MenuItem value="Cost">Cost</MenuItem>
-            </Select>
-            <TextField type="number" label="Weight" value={c.weight} onChange={(e) => {
-              const newCriteria = [...criteria];
-              newCriteria[index].weight = e.target.value;
-              setCriteria(newCriteria);
-            }} />
-            <IconButton color="error" onClick={() => removeCriterion(index)}>
-              <DeleteIcon />
-            </IconButton>
-          </Box>
-        ))}
-        <Button startIcon={<AddIcon />} onClick={addCriterion}>Add Criteria</Button>
+        <Divider sx={{ my: 2 }} />
 
-        {/* Alternatives Section */}
-        <Typography variant="h6" sx={{ mt: 3 }}>Alternatives</Typography>
-        <Button startIcon={<AddIcon />} sx={{ mb: 2 }} onClick={addAlternative}>Add Alternative</Button>
+        {/* Placeholder for DSS Input Forms */}
+        <Typography variant="h6">Criteria & Alternatives Section (Coming Next...)</Typography>
 
-        <TableContainer component={Paper} sx={{ mb: 2 }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Alternative Name</TableCell>
-                {criteria.map((c, index) => <TableCell key={index}>{c.name || `Criteria ${index + 1}`}</TableCell>)}
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {alternatives.map((alt, altIndex) => (
-                <TableRow key={altIndex}>
-                  <TableCell><TextField fullWidth value={alt.name} onChange={(e) => updateAlternativeName(altIndex, e.target.value)} /></TableCell>
-                  {criteria.map((_, critIndex) => <TableCell key={critIndex}><TextField type="number" /></TableCell>)}
-                  <TableCell><IconButton color="error" onClick={() => removeAlternative(altIndex)}><DeleteIcon /></IconButton></TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <Divider sx={{ my: 2 }} />
 
-        <Button fullWidth startIcon={<CalculateIcon />} variant="contained" onClick={calculateResults}>Calculate Results</Button>
+        <Button fullWidth startIcon={<CalculateIcon />} variant="contained">
+          Calculate Results
+        </Button>
       </Container>
     </Box>
   );
