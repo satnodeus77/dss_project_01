@@ -55,14 +55,6 @@ export default function HomePage() {
     setAboutOpen(false);
   };
 
-  const addAlternative = () => {
-    setAlternatives([...alternatives, { name: "", values: Array(criteria.length).fill("") }]);
-  };
-
-  const removeAlternative = (index) => {
-    setAlternatives(alternatives.filter((_, i) => i !== index));
-  };
-
   return (
     <Box
       sx={{
@@ -172,9 +164,38 @@ export default function HomePage() {
           </Select>
         </FormControl>
 
+        {/* Criteria Section */}
+        <Typography variant="h6">Criteria</Typography>
+        {criteria.map((c, index) => (
+          <Box key={index} sx={{ display: "flex", gap: 2, mb: 1 }}>
+            <TextField fullWidth label="Criteria Name" value={c.name} onChange={(e) => {
+              const newCriteria = [...criteria];
+              newCriteria[index].name = e.target.value;
+              setCriteria(newCriteria);
+            }} />
+            <Select value={c.type} onChange={(e) => {
+              const newCriteria = [...criteria];
+              newCriteria[index].type = e.target.value;
+              setCriteria(newCriteria);
+            }}>
+              <MenuItem value="Benefit">Benefit</MenuItem>
+              <MenuItem value="Cost">Cost</MenuItem>
+            </Select>
+            <TextField type="number" label="Weight" value={c.weight} onChange={(e) => {
+              const newCriteria = [...criteria];
+              newCriteria[index].weight = e.target.value;
+              setCriteria(newCriteria);
+            }} />
+            <IconButton color="error" onClick={() => setCriteria(criteria.filter((_, i) => i !== index))}>
+              <DeleteIcon />
+            </IconButton>
+          </Box>
+        ))}
+        <Button startIcon={<AddIcon />} onClick={() => setCriteria([...criteria, { name: "", type: "Benefit", weight: "" }])}>Add Criteria</Button>
+
         {/* Alternatives Section */}
         <Typography variant="h6" sx={{ mt: 3 }}>Alternatives</Typography>
-        <Button startIcon={<AddIcon />} sx={{ mb: 2 }} onClick={addAlternative}>Add Alternative</Button>
+        <Button startIcon={<AddIcon />} sx={{ mb: 2 }} onClick={() => setAlternatives([...alternatives, { name: "", values: Array(criteria.length).fill("") }])}>Add Alternative</Button>
 
         <TableContainer component={Paper} sx={{ mb: 2 }}>
           <Table>
@@ -188,35 +209,9 @@ export default function HomePage() {
             <TableBody>
               {alternatives.map((alt, altIndex) => (
                 <TableRow key={altIndex}>
-                  <TableCell>
-                    <TextField
-                      fullWidth
-                      value={alt.name}
-                      onChange={(e) => {
-                        const updatedAlternatives = [...alternatives];
-                        updatedAlternatives[altIndex].name = e.target.value;
-                        setAlternatives(updatedAlternatives);
-                      }}
-                    />
-                  </TableCell>
-                  {criteria.map((_, critIndex) => (
-                    <TableCell key={critIndex}>
-                      <TextField
-                        type="number"
-                        value={alt.values[critIndex]}
-                        onChange={(e) => {
-                          const updatedAlternatives = [...alternatives];
-                          updatedAlternatives[altIndex].values[critIndex] = e.target.value;
-                          setAlternatives(updatedAlternatives);
-                        }}
-                      />
-                    </TableCell>
-                  ))}
-                  <TableCell>
-                    <IconButton color="error" onClick={() => removeAlternative(altIndex)}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
+                  <TableCell><TextField fullWidth value={alt.name} /></TableCell>
+                  {criteria.map((_, critIndex) => <TableCell key={critIndex}><TextField type="number" /></TableCell>)}
+                  <TableCell><IconButton color="error"><DeleteIcon /></IconButton></TableCell>
                 </TableRow>
               ))}
             </TableBody>
