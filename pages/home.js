@@ -5,7 +5,7 @@ import {
   Box, Container, Typography, IconButton, Menu, MenuItem, Avatar,
   Select, TextField, Button, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, FormControl, Paper, Dialog, DialogTitle,
-  DialogContent, DialogActions
+  DialogContent, DialogActions, Checkbox
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AddIcon from "@mui/icons-material/Add";
@@ -17,7 +17,7 @@ export default function HomePage() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [method, setMethod] = useState("SAW");
-  const [criteria, setCriteria] = useState([{ name: "", type: "Benefit", weight: "" }]);
+  const [criteria, setCriteria] = useState([{ name: "", type: "Benefit", weight: "", active: true }]);
   const [alternatives, setAlternatives] = useState([]);
   const [results, setResults] = useState([]);
 
@@ -66,6 +66,18 @@ export default function HomePage() {
     setAlternatives(updatedAlternatives);
   };
 
+  const toggleAlternativeActive = (index) => {
+    const updatedAlternatives = [...alternatives];
+    updatedAlternatives[index].active = !updatedAlternatives[index].active;
+    setAlternatives(updatedAlternatives);
+  };
+
+  const toggleCriteriaActive = (index) => {
+    const updatedCriteria = [...criteria];
+    updatedCriteria[index].active = !updatedCriteria[index].active;
+    setCriteria(updatedCriteria);
+  };
+
   const calculateResults = () => {
     let calculatedResults = [];
 
@@ -81,11 +93,14 @@ export default function HomePage() {
   };
 
   const calculateSAW = () => {
-    const normalizedAlternatives = alternatives.map((alt) => {
+    const activeCriteria = criteria.filter(c => c.active);
+    const activeAlternatives = alternatives.filter(a => a.active);
+
+    const normalizedAlternatives = activeAlternatives.map((alt) => {
       const normalizedValues = alt.values.map((value, index) => {
-        const criterion = criteria[index];
-        const maxValue = Math.max(...alternatives.map((a) => parseFloat(a.values[index])));
-        const minValue = Math.min(...alternatives.map((a) => parseFloat(a.values[index])));
+        const criterion = activeCriteria[index];
+        const maxValue = Math.max(...activeAlternatives.map((a) => parseFloat(a.values[index])));
+        const minValue = Math.min(...activeAlternatives.map((a) => parseFloat(a.values[index])));
         return criterion.type === "Benefit" ? value / maxValue : minValue / value;
       });
       return { ...alt, normalizedValues };
@@ -93,7 +108,7 @@ export default function HomePage() {
 
     const scores = normalizedAlternatives.map((alt) => {
       const score = alt.normalizedValues.reduce((acc, value, index) => {
-        return acc + value * parseFloat(criteria[index].weight);
+        return acc + value * parseFloat(activeCriteria[index].weight);
       }, 0);
       return { name: alt.name, score };
     });
@@ -102,26 +117,29 @@ export default function HomePage() {
   };
 
   const calculateTOPSIS = () => {
-    const normalizedAlternatives = alternatives.map((alt) => {
+    const activeCriteria = criteria.filter(c => c.active);
+    const activeAlternatives = alternatives.filter(a => a.active);
+
+    const normalizedAlternatives = activeAlternatives.map((alt) => {
       const normalizedValues = alt.values.map((value, index) => {
-        const sumOfSquares = Math.sqrt(alternatives.reduce((acc, a) => acc + Math.pow(parseFloat(a.values[index]), 2), 0));
+        const sumOfSquares = Math.sqrt(activeAlternatives.reduce((acc, a) => acc + Math.pow(parseFloat(a.values[index]), 2), 0));
         return value / sumOfSquares;
       });
       return { ...alt, normalizedValues };
     });
 
     const weightedAlternatives = normalizedAlternatives.map((alt) => {
-      const weightedValues = alt.normalizedValues.map((value, index) => value * parseFloat(criteria[index].weight));
+      const weightedValues = alt.normalizedValues.map((value, index) => value * parseFloat(activeCriteria[index].weight));
       return { ...alt, weightedValues };
     });
 
-    const idealBest = criteria.map((criterion, index) => {
+    const idealBest = activeCriteria.map((criterion, index) => {
       return criterion.type === "Benefit"
         ? Math.max(...weightedAlternatives.map((alt) => alt.weightedValues[index]))
         : Math.min(...weightedAlternatives.map((alt) => alt.weightedValues[index]));
     });
 
-    const idealWorst = criteria.map((criterion, index) => {
+    const idealWorst = activeCriteria.map((criterion, index) => {
       return criterion.type === "Benefit"
         ? Math.min(...weightedAlternatives.map((alt) => alt.weightedValues[index]))
         : Math.max(...weightedAlternatives.map((alt) => alt.weightedValues[index]));
@@ -138,9 +156,12 @@ export default function HomePage() {
   };
 
   const calculateWP = () => {
-    const scores = alternatives.map((alt) => {
+    const activeCriteria = criteria.filter(c => c.active);
+    const activeAlternatives = alternatives.filter(a => a.active);
+
+    const scores = activeAlternatives.map((alt) => {
       const score = alt.values.reduce((acc, value, index) => {
-        return acc * Math.pow(parseFloat(value), parseFloat(criteria[index].weight));
+        return acc * Math.pow(parseFloat(value), parseFloat(activeCriteria[index].weight));
       }, 1);
       return { name: alt.name, score };
     });
@@ -261,6 +282,10 @@ export default function HomePage() {
         <Typography variant="h6">Criteria</Typography>
         {criteria.map((c, index) => (
           <Box key={index} sx={{ display: "flex", gap: 2, mb: 1 }}>
+            <Checkbox
+              checked={c.active}
+              onChange={() => toggleCriteriaActive(index)}
+            />
             <TextField
               fullWidth
               label="Criteria Name"
@@ -297,14 +322,14 @@ export default function HomePage() {
             </IconButton>
           </Box>
         ))}
-        <Button startIcon={<AddIcon />} onClick={() => setCriteria([...criteria, { name: "", type: "Benefit", weight: "" }])}>Add Criteria</Button>
+        <Button startIcon={<AddIcon />} onClick={() => setCriteria([...criteria, { name: "", type: "Benefit", weight: "", active: true }])}>Add Criteria</Button>
 
         {/* Alternatives Section */}
         <Typography variant="h6" sx={{ mt: 3 }}>Alternatives</Typography>
         <Button
           startIcon={<AddIcon />}
           sx={{ mb: 2 }}
-          onClick={() => setAlternatives([...alternatives, { name: "", values: Array(criteria.length).fill("") }])}
+          onClick={() => setAlternatives([...alternatives, { name: "", values: Array(criteria.length).fill(""), active: true }])}
         >
           Add Alternative
         </Button>
@@ -313,6 +338,7 @@ export default function HomePage() {
           <Table>
             <TableHead>
               <TableRow>
+                <TableCell>Active</TableCell>
                 <TableCell>Alternative Name</TableCell>
                 {criteria.map((c, index) => (
                   <TableCell key={index}>{c.name || `Criteria ${index + 1}`}</TableCell>
@@ -323,6 +349,12 @@ export default function HomePage() {
             <TableBody>
               {alternatives.map((alt, altIndex) => (
                 <TableRow key={altIndex}>
+                  <TableCell>
+                    <Checkbox
+                      checked={alt.active}
+                      onChange={() => toggleAlternativeActive(altIndex)}
+                    />
+                  </TableCell>
                   <TableCell>
                     <TextField
                       fullWidth
