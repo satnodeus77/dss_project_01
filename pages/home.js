@@ -78,27 +78,33 @@ export default function HomePage() {
     setCriteria(updatedCriteria);
   };
 
+  const normalizeWeights = (criteria) => {
+    const totalWeight = criteria.reduce((acc, c) => acc + parseFloat(c.weight), 0);
+    return criteria.map(c => ({ ...c, weight: parseFloat(c.weight) / totalWeight }));
+  };
+
   const calculateResults = () => {
     let calculatedResults = [];
 
+    const normalizedCriteria = normalizeWeights(criteria.filter(c => c.active));
+
     if (method === "SAW") {
-      calculatedResults = calculateSAW();
+      calculatedResults = calculateSAW(normalizedCriteria);
     } else if (method === "TOPSIS") {
-      calculatedResults = calculateTOPSIS();
+      calculatedResults = calculateTOPSIS(normalizedCriteria);
     } else if (method === "WP") {
-      calculatedResults = calculateWP();
+      calculatedResults = calculateWP(normalizedCriteria);
     }
 
     setResults(calculatedResults);
   };
 
-  const calculateSAW = () => {
-    const activeCriteria = criteria.filter(c => c.active);
+  const calculateSAW = (normalizedCriteria) => {
     const activeAlternatives = alternatives.filter(a => a.active);
 
     const normalizedAlternatives = activeAlternatives.map((alt) => {
       const normalizedValues = alt.values.map((value, index) => {
-        const criterion = activeCriteria[index];
+        const criterion = normalizedCriteria[index];
         const maxValue = Math.max(...activeAlternatives.map((a) => parseFloat(a.values[index])));
         const minValue = Math.min(...activeAlternatives.map((a) => parseFloat(a.values[index])));
         return criterion.type === "Benefit" ? value / maxValue : minValue / value;
@@ -108,16 +114,15 @@ export default function HomePage() {
 
     const scores = normalizedAlternatives.map((alt) => {
       const score = alt.normalizedValues.reduce((acc, value, index) => {
-        return acc + value * parseFloat(activeCriteria[index].weight);
+        return acc + value * normalizedCriteria[index].weight;
       }, 0);
-      return { name: alt.name, score };
+      return { name: alt.name, score: parseFloat(score.toFixed(3)) };
     });
 
     return scores.sort((a, b) => b.score - a.score);
   };
 
-  const calculateTOPSIS = () => {
-    const activeCriteria = criteria.filter(c => c.active);
+  const calculateTOPSIS = (normalizedCriteria) => {
     const activeAlternatives = alternatives.filter(a => a.active);
 
     const normalizedAlternatives = activeAlternatives.map((alt) => {
@@ -129,17 +134,17 @@ export default function HomePage() {
     });
 
     const weightedAlternatives = normalizedAlternatives.map((alt) => {
-      const weightedValues = alt.normalizedValues.map((value, index) => value * parseFloat(activeCriteria[index].weight));
+      const weightedValues = alt.normalizedValues.map((value, index) => value * normalizedCriteria[index].weight);
       return { ...alt, weightedValues };
     });
 
-    const idealBest = activeCriteria.map((criterion, index) => {
+    const idealBest = normalizedCriteria.map((criterion, index) => {
       return criterion.type === "Benefit"
         ? Math.max(...weightedAlternatives.map((alt) => alt.weightedValues[index]))
         : Math.min(...weightedAlternatives.map((alt) => alt.weightedValues[index]));
     });
 
-    const idealWorst = activeCriteria.map((criterion, index) => {
+    const idealWorst = normalizedCriteria.map((criterion, index) => {
       return criterion.type === "Benefit"
         ? Math.min(...weightedAlternatives.map((alt) => alt.weightedValues[index]))
         : Math.max(...weightedAlternatives.map((alt) => alt.weightedValues[index]));
@@ -149,21 +154,20 @@ export default function HomePage() {
       const distanceToBest = Math.sqrt(alt.weightedValues.reduce((acc, value, index) => acc + Math.pow(value - idealBest[index], 2), 0));
       const distanceToWorst = Math.sqrt(alt.weightedValues.reduce((acc, value, index) => acc + Math.pow(value - idealWorst[index], 2), 0));
       const score = distanceToWorst / (distanceToBest + distanceToWorst);
-      return { name: alt.name, score };
+      return { name: alt.name, score: parseFloat(score.toFixed(3)) };
     });
 
     return scores.sort((a, b) => b.score - a.score);
   };
 
-  const calculateWP = () => {
-    const activeCriteria = criteria.filter(c => c.active);
+  const calculateWP = (normalizedCriteria) => {
     const activeAlternatives = alternatives.filter(a => a.active);
 
     const scores = activeAlternatives.map((alt) => {
       const score = alt.values.reduce((acc, value, index) => {
-        return acc * Math.pow(parseFloat(value), parseFloat(activeCriteria[index].weight));
+        return acc * Math.pow(parseFloat(value), normalizedCriteria[index].weight);
       }, 1);
-      return { name: alt.name, score };
+      return { name: alt.name, score: parseFloat(score.toFixed(3)) };
     });
 
     return scores.sort((a, b) => b.score - a.score);
