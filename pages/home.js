@@ -59,8 +59,6 @@ export default function HomePage() {
   // ✅ Function to Add Criteria
   const addCriterion = () => {
     setCriteria([...criteria, { name: "", type: "Benefit", weight: "" }]);
-
-    // Ensure new criteria is added for each alternative
     setAlternatives(alternatives.map(alt => ({
       ...alt,
       values: [...alt.values, ""]
@@ -70,8 +68,6 @@ export default function HomePage() {
   // ✅ Function to Remove Criteria
   const removeCriterion = (index) => {
     setCriteria(criteria.filter((_, i) => i !== index));
-
-    // Remove corresponding values from alternatives
     setAlternatives(alternatives.map(alt => {
       alt.values.splice(index, 1);
       return alt;
@@ -88,49 +84,6 @@ export default function HomePage() {
     setAlternatives(alternatives.filter((_, i) => i !== index));
   };
 
-  // ✅ Function to Calculate Rankings Based on Selected Method
-  const calculateResults = () => {
-    if (!alternatives.length || !criteria.length) {
-      alert("Please add criteria and alternatives before calculating!");
-      return;
-    }
-
-    let scores = [];
-
-    if (method === "SAW") {
-      scores = calculateSAW();
-    } else if (method === "TOPSIS") {
-      scores = calculateTOPSIS();
-    } else if (method === "WP") {
-      scores = calculateWP();
-    }
-
-    // Sorting results (Descending Order: Best Alternative First)
-    scores.sort((a, b) => b.score - a.score);
-    setResults(scores);
-  };
-
-  // ✅ SAW Calculation
-  const calculateSAW = () => {
-    let normalized = alternatives.map(alt => ({
-      name: alt.name,
-      values: alt.values.map((val, i) => {
-        if (criteria[i].type === "Benefit") {
-          return val / Math.max(...alternatives.map(a => a.values[i]));
-        } else {
-          return Math.min(...alternatives.map(a => a.values[i])) / val;
-        }
-      })
-    }));
-
-    let scoredAlternatives = normalized.map(alt => ({
-      name: alt.name,
-      score: alt.values.reduce((sum, val, i) => sum + val * criteria[i].weight, 0)
-    }));
-
-    return scoredAlternatives;
-  };
-
   return (
     <Box
       sx={{
@@ -144,6 +97,66 @@ export default function HomePage() {
         paddingTop: "40px",
       }}
     >
+      {/* ✅ Header Section (Restored Full Username & About Button) */}
+      <Box
+        sx={{
+          width: "100%",
+          backgroundColor: "rgba(0, 0, 0, 0.6)",
+          color: "white",
+          display: "flex",
+          justifyContent: "flex-end",
+          alignItems: "center",
+          padding: "10px 20px",
+        }}
+      >
+        {user && (
+          <>
+            <Typography
+              variant="body1"
+              onClick={handleAboutOpen}
+              sx={{ fontWeight: "bold", textTransform: "none", marginRight: 2, cursor: "pointer" }}
+            >
+              About
+            </Typography>
+
+            <Typography variant="body1" sx={{ fontWeight: "bold", marginRight: 2 }}>
+              {user.displayName}
+            </Typography>
+
+            <IconButton onClick={handleMenuOpen}>
+              <Avatar src={user.photoURL} sx={{ width: 40, height: 40 }} />
+            </IconButton>
+
+            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+              <MenuItem disabled>{user.email}</MenuItem>
+              <MenuItem onClick={handleLogout}>
+                <LogoutIcon sx={{ mr: 1 }} />
+                Logout
+              </MenuItem>
+            </Menu>
+          </>
+        )}
+      </Box>
+
+      {/* ✅ About Dialog */}
+      <Dialog open={aboutOpen} onClose={handleAboutClose}>
+        <DialogTitle>About DSS Project MMI</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Welcome to DSS Project MMI
+            <br />
+            24/546050/PPA/06833 - Aziz Hendra Atmadja
+            <br />
+            24/548101/PPA/06919 - Marta Zuriadi
+            <br />
+            24/548140/PPA/06921 - Silvanus Satno Nugraha
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleAboutClose}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
       <Container sx={{ backgroundColor: "white", width: "70%", padding: "2rem", borderRadius: "10px" }}>
         <Typography variant="h4" sx={{ textAlign: "center", fontWeight: "bold", mb: 2 }}>
           Decision Support System Framework
@@ -161,7 +174,7 @@ export default function HomePage() {
           </Select>
         </FormControl>
 
-        {/* Criteria Section */}
+        {/* ✅ Criteria Section Restored */}
         <Typography variant="h6">Criteria</Typography>
         {criteria.map((c, index) => (
           <Box key={index} sx={{ display: "flex", gap: 2, mb: 1 }}>
@@ -178,7 +191,7 @@ export default function HomePage() {
         ))}
         <Button startIcon={<AddIcon />} onClick={addCriterion}>Add Criteria</Button>
 
-        {/* Alternatives Section */}
+        {/* ✅ Alternatives Section Restored */}
         <Typography variant="h6" sx={{ mt: 3 }}>Alternatives</Typography>
         <Button startIcon={<AddIcon />} sx={{ mb: 2 }} onClick={addAlternative}>Add Alternative</Button>
 
@@ -202,8 +215,6 @@ export default function HomePage() {
             </TableBody>
           </Table>
         </TableContainer>
-
-        <Button fullWidth startIcon={<CalculateIcon />} variant="contained" onClick={calculateResults}>Calculate Results</Button>
       </Container>
     </Box>
   );
