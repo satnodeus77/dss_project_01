@@ -27,6 +27,8 @@ export default function CalculatorPage() {
 
   const router = useRouter();
 
+  //test
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       if (!currentUser) {
