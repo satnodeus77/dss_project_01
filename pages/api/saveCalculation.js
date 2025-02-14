@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     try {
       const result = await pool.query(
         'INSERT INTO result_calculation (user_id, method, criteria, alternatives, rank_results) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-        [userId, method, criteria, alternatives, rankResults]
+        [userId, method, JSON.stringify(criteria), JSON.stringify(alternatives), JSON.stringify(rankResults)]
       );
 
       const newCalculation = result.rows[0];
