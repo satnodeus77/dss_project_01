@@ -8,7 +8,7 @@ import CalculateIcon from "@mui/icons-material/Calculate";
 import HistoryIcon from "@mui/icons-material/History";
 import { auth } from "../lib/firebase";
 
-export default function HistoryPage() {
+export default function HistoryCalculationPage() {
   const [user, setUser] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -81,7 +81,7 @@ export default function HistoryPage() {
               variant="text"
               startIcon={<HistoryIcon sx={{ color: "gray" }} />}
               sx={{ color: "white", textTransform: "none", fontWeight: "bold", fontSize: "1rem", marginRight: 2 }}
-              onClick={() => router.push('/historyPage')}
+              onClick={() => router.push('/historyCalculationPage')}
             >
               History
             </Button>

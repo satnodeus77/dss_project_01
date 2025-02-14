@@ -90,7 +90,7 @@ export default function HomePage() {
               variant="text"
               startIcon={<HistoryIcon sx={{ color: "gray" }} />}
               sx={{ color: "white", textTransform: "none", fontWeight: "bold", fontSize: "1rem", marginRight: 2 }}
-              onClick={() => router.push('/historyPage')}
+              onClick={() => router.push('/historyCalculationPage')}
             >
               History
             </Button>
