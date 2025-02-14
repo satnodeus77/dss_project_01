@@ -68,45 +68,48 @@ export default function HomePage() {
           backgroundColor: "rgba(0, 0, 0, 0.6)",
           color: "white",
           display: "flex",
-          justifyContent: "flex-end",
+          justifyContent: "space-between",
           alignItems: "center",
           padding: "10px 20px",
         }}
       >
         {user && (
           <>
-            {/* About Button */}
-            <Typography
-              variant="body1"
-              onClick={handleAboutOpen}
-              sx={{
-                fontWeight: "bold",
-                textTransform: "none",
-                marginRight: 2,
-                cursor: "pointer",
-              }}
-            >
-              About
-            </Typography>
-
             {/* User Info */}
-            <Typography variant="body1" sx={{ fontWeight: "bold", marginRight: 2 }}>
-              {user.displayName}
-            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Typography variant="body1" sx={{ fontWeight: "bold", marginRight: 2 }}>
+                {user.displayName}
+              </Typography>
+              <IconButton onClick={handleMenuOpen}>
+                <Avatar src={user.photoURL} sx={{ width: 40, height: 40 }} />
+              </IconButton>
+              <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+                <MenuItem disabled>{user.email}</MenuItem>
+                <MenuItem onClick={handleLogout}>
+                  <LogoutIcon sx={{ mr: 1 }} />
+                  Logout
+                </MenuItem>
+              </Menu>
+            </Box>
 
-            {/* User Avatar */}
-            <IconButton onClick={handleMenuOpen}>
-              <Avatar src={user.photoURL} sx={{ width: 40, height: 40 }} />
-            </IconButton>
-
-            {/* Dropdown Menu */}
-            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-              <MenuItem disabled>{user.email}</MenuItem>
-              <MenuItem onClick={handleLogout}>
-                <LogoutIcon sx={{ mr: 1 }} />
-                Logout
-              </MenuItem>
-            </Menu>
+            {/* Calculator and History Buttons */}
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Button
+                variant="contained"
+                startIcon={<CalculateIcon />}
+                sx={{ mr: 1 }}
+                onClick={() => router.push('/CalculatorPage')}
+              >
+                Calculator
+              </Button>
+              <Button
+                variant="outlined"
+                startIcon={<HistoryIcon />}
+                onClick={() => router.push('/HistoryPage')}
+              >
+                History
+              </Button>
+            </Box>
           </>
         )}
       </Box>
@@ -117,6 +120,10 @@ export default function HomePage() {
         <DialogContent>
           <Typography>
             Welcome to DSS Project MMI
+            <br />
+            This project is developed to provide a framework for Decision Support Systems.
+            <br />
+            Contributors:
             <br />
             24/546050/PPA/06833 - Aziz Hendra Atmadja
             <br />
@@ -145,23 +152,6 @@ export default function HomePage() {
           <Typography variant="h5" sx={{ fontWeight: "bold" }}>
             Decision Support System Framework
           </Typography>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Button
-              variant="contained"
-              startIcon={<CalculateIcon />}
-              sx={{ mr: 1 }}
-              onClick={() => router.push('/CalculatorPage')}
-            >
-              Calculator
-            </Button>
-            <Button
-              variant="outlined"
-              startIcon={<HistoryIcon />}
-              onClick={() => router.push('/HistoryPage')}
-            >
-              History
-            </Button>
-          </Box>
         </Box>
       </Container>
     </Box>
