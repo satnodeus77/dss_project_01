@@ -80,7 +80,7 @@ export default function HomePage() {
               variant="text"
               startIcon={<CalculateIcon sx={{ color: "gray" }} />}
               sx={{ color: "white", textTransform: "none", fontWeight: "bold", fontSize: "1rem", marginRight: 2 }}
-              onClick={() => router.push('/CalculatorPage')}
+              onClick={() => router.push('/calculatorPage')}
             >
               Calculator
             </Button>
@@ -90,7 +90,7 @@ export default function HomePage() {
               variant="text"
               startIcon={<HistoryIcon sx={{ color: "gray" }} />}
               sx={{ color: "white", textTransform: "none", fontWeight: "bold", fontSize: "1rem", marginRight: 2 }}
-              onClick={() => router.push('/HistoryPage')}
+              onClick={() => router.push('/historyPage')}
             >
               History
             </Button>
