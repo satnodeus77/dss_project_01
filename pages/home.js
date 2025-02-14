@@ -19,6 +19,7 @@ export default function HomePage() {
   const [method, setMethod] = useState("SAW");
   const [criteria, setCriteria] = useState([{ name: "", type: "Benefit", weight: "" }]);
   const [alternatives, setAlternatives] = useState([]);
+  const [results, setResults] = useState([]);
 
   const router = useRouter();
 
@@ -55,9 +56,100 @@ export default function HomePage() {
     setAboutOpen(false);
   };
 
-  // ✅ Fixed: Delete Alternative Button
   const removeAlternative = (index) => {
     setAlternatives(alternatives.filter((_, i) => i !== index));
+  };
+
+  // 🔥 Function to Calculate Rankings Based on Selected Method
+  const calculateResults = () => {
+    if (!alternatives.length || !criteria.length) {
+      alert("Please add criteria and alternatives before calculating!");
+      return;
+    }
+
+    let scores = [];
+
+    if (method === "SAW") {
+      scores = calculateSAW();
+    } else if (method === "TOPSIS") {
+      scores = calculateTOPSIS();
+    } else if (method === "WP") {
+      scores = calculateWP();
+    }
+
+    // Sorting results (Descending Order: Best Alternative First)
+    scores.sort((a, b) => b.score - a.score);
+    setResults(scores);
+  };
+
+  // ✅ SAW Calculation
+  const calculateSAW = () => {
+    let normalized = alternatives.map(alt => ({
+      name: alt.name,
+      values: alt.values.map((val, i) => {
+        if (criteria[i].type === "Benefit") {
+          return val / Math.max(...alternatives.map(a => a.values[i]));
+        } else {
+          return Math.min(...alternatives.map(a => a.values[i])) / val;
+        }
+      })
+    }));
+
+    let scoredAlternatives = normalized.map(alt => ({
+      name: alt.name,
+      score: alt.values.reduce((sum, val, i) => sum + val * criteria[i].weight, 0)
+    }));
+
+    return scoredAlternatives;
+  };
+
+  // ✅ TOPSIS Calculation
+  const calculateTOPSIS = () => {
+    let normalized = alternatives.map(alt => ({
+      name: alt.name,
+      values: alt.values.map((val, i) =>
+        val / Math.sqrt(alternatives.reduce((sum, a) => sum + a.values[i] ** 2, 0))
+      )
+    }));
+
+    let weighted = normalized.map(alt => ({
+      name: alt.name,
+      values: alt.values.map((val, i) => val * criteria[i].weight)
+    }));
+
+    let idealBest = criteria.map((crit, i) =>
+      crit.type === "Benefit"
+        ? Math.max(...weighted.map(a => a.values[i]))
+        : Math.min(...weighted.map(a => a.values[i]))
+    );
+
+    let idealWorst = criteria.map((crit, i) =>
+      crit.type === "Benefit"
+        ? Math.min(...weighted.map(a => a.values[i]))
+        : Math.max(...weighted.map(a => a.values[i]))
+    );
+
+    let scores = weighted.map(alt => {
+      let distBest = Math.sqrt(alt.values.reduce((sum, val, i) => sum + (val - idealBest[i]) ** 2, 0));
+      let distWorst = Math.sqrt(alt.values.reduce((sum, val, i) => sum + (val - idealWorst[i]) ** 2, 0));
+      return {
+        name: alt.name,
+        score: distWorst / (distBest + distWorst)
+      };
+    });
+
+    return scores;
+  };
+
+  // ✅ WP Calculation
+  const calculateWP = () => {
+    let scores = alternatives.map(alt => ({
+      name: alt.name,
+      score: alt.values.reduce((prod, val, i) =>
+        prod * Math.pow(val, (criteria[i].type === "Benefit" ? 1 : -1) * criteria[i].weight), 1)
+    }));
+
+    return scores;
   };
 
   return (
@@ -73,75 +165,6 @@ export default function HomePage() {
         paddingTop: "40px",
       }}
     >
-      {/* Header Section (Not Sticky) */}
-      <Box
-        sx={{
-          width: "100%",
-          backgroundColor: "rgba(0, 0, 0, 0.6)",
-          color: "white",
-          display: "flex",
-          justifyContent: "flex-end",
-          alignItems: "center",
-          padding: "10px 20px",
-        }}
-      >
-        {user && (
-          <>
-            {/* About Button */}
-            <Typography
-              variant="body1"
-              onClick={handleAboutOpen}
-              sx={{
-                fontWeight: "bold",
-                textTransform: "none",
-                marginRight: 2,
-                cursor: "pointer",
-              }}
-            >
-              About
-            </Typography>
-
-            {/* User Info */}
-            <Typography variant="body1" sx={{ fontWeight: "bold", marginRight: 2 }}>
-              {user.displayName}
-            </Typography>
-
-            {/* User Avatar */}
-            <IconButton onClick={handleMenuOpen}>
-              <Avatar src={user.photoURL} sx={{ width: 40, height: 40 }} />
-            </IconButton>
-
-            {/* Dropdown Menu */}
-            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-              <MenuItem disabled>{user.email}</MenuItem>
-              <MenuItem onClick={handleLogout}>
-                <LogoutIcon sx={{ mr: 1 }} />
-                Logout
-              </MenuItem>
-            </Menu>
-          </>
-        )}
-      </Box>
-
-      {/* About Dialog */}
-      <Dialog open={aboutOpen} onClose={handleAboutClose}>
-        <DialogTitle>About DSS Project MMI</DialogTitle>
-        <DialogContent>
-          <Typography>
-            Welcome to DSS Project MMI
-            <br />
-            24/546050/PPA/06833 - Aziz Hendra Atmadja
-            <br />
-            24/548101/PPA/06919 - Marta Zuriadi
-            <br />
-            24/548140/PPA/06921 - Silvanus Satno Nugraha
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleAboutClose}>Close</Button>
-        </DialogActions>
-      </Dialog>
-
       {/* Main DSS Section */}
       <Container
         sx={{
@@ -169,71 +192,34 @@ export default function HomePage() {
           </Select>
         </FormControl>
 
-        {/* Criteria Section */}
-        <Typography variant="h6">Criteria</Typography>
-        {criteria.map((c, index) => (
-          <Box key={index} sx={{ display: "flex", gap: 2, mb: 1 }}>
-            <TextField fullWidth label="Criteria Name" value={c.name} />
-            <Select value={c.type}>
-              <MenuItem value="Benefit">Benefit</MenuItem>
-              <MenuItem value="Cost">Cost</MenuItem>
-            </Select>
-            <TextField type="number" label="Weight" value={c.weight} />
-            <IconButton color="error" onClick={() => setCriteria(criteria.filter((_, i) => i !== index))}>
-              <DeleteIcon />
-            </IconButton>
-          </Box>
-        ))}
-        <Button startIcon={<AddIcon />} onClick={() => setCriteria([...criteria, { name: "", type: "Benefit", weight: "" }])}>Add Criteria</Button>
-
-        {/* Alternatives Section */}
-        <Typography variant="h6" sx={{ mt: 3 }}>Alternatives</Typography>
-        <Button
-          startIcon={<AddIcon />}
-          sx={{ mb: 2 }}
-          onClick={() => setAlternatives([...alternatives, { name: "", values: Array(criteria.length).fill("") }])}
-        >
-          Add Alternative
+        {/* Calculate Button */}
+        <Button fullWidth startIcon={<CalculateIcon />} variant="contained" onClick={calculateResults}>
+          Calculate Results
         </Button>
 
-        <TableContainer component={Paper} sx={{ mb: 2 }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Alternative Name</TableCell>
-                {criteria.map((c, index) => (
-                  <TableCell key={index}>{c.name || `Criteria ${index + 1}`}</TableCell>
-                ))}
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {alternatives.map((alt, altIndex) => (
-                <TableRow key={altIndex}>
-                  <TableCell>
-                    <TextField fullWidth value={alt.name} onChange={(e) => {
-                      const updatedAlternatives = [...alternatives];
-                      updatedAlternatives[altIndex].name = e.target.value;
-                      setAlternatives(updatedAlternatives);
-                    }} />
-                  </TableCell>
-                  {criteria.map((_, critIndex) => (
-                    <TableCell key={critIndex}>
-                      <TextField type="number" />
-                    </TableCell>
-                  ))}
-                  <TableCell>
-                    <IconButton color="error" onClick={() => removeAlternative(altIndex)}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
+        {/* Results Section */}
+        {results.length > 0 && (
+          <TableContainer component={Paper} sx={{ mt: 3 }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Rank</TableCell>
+                  <TableCell>Alternative</TableCell>
+                  <TableCell>Score</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-
-        <Button fullWidth variant="contained">Calculate Results</Button>
+              </TableHead>
+              <TableBody>
+                {results.map((res, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{res.name}</TableCell>
+                    <TableCell>{res.score.toFixed(4)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
       </Container>
     </Box>
   );
