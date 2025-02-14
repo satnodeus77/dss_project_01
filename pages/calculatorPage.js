@@ -92,7 +92,8 @@ export default function CalculatorPage() {
 
   const calculateSAW = (normalizedCriteria) => {
     const activeAlternatives = alternatives.filter(a => a.active);
-
+  
+    // Normalize the Decision Matrix
     const normalizedAlternatives = activeAlternatives.map((alt) => {
       const normalizedValues = alt.values.map((value, index) => {
         const criterion = normalizedCriteria[index];
@@ -102,14 +103,15 @@ export default function CalculatorPage() {
       });
       return { ...alt, normalizedValues };
     });
-
+  
+    // Multiply by Weights
     const scores = normalizedAlternatives.map((alt) => {
       const score = alt.normalizedValues.reduce((acc, value, index) => {
         return acc + value * normalizedCriteria[index].weight;
       }, 0);
       return { name: alt.name, score: parseFloat(score.toFixed(3)) };
     });
-
+  
     return scores.sort((a, b) => b.score - a.score);
   };
 
