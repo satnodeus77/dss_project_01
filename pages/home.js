@@ -64,6 +64,12 @@ export default function HomePage() {
     })));
   };
 
+  const updateCriterion = (index, field, value) => {
+    const updatedCriteria = [...criteria];
+    updatedCriteria[index][field] = value;
+    setCriteria(updatedCriteria);
+  };
+
   const removeCriterion = (index) => {
     setCriteria(criteria.filter((_, i) => i !== index));
     setAlternatives(alternatives.map(alt => {
@@ -76,42 +82,76 @@ export default function HomePage() {
     setAlternatives([...alternatives, { name: "", values: Array(criteria.length).fill("") }]);
   };
 
+  const updateAlternative = (altIndex, field, value) => {
+    const updatedAlternatives = [...alternatives];
+    updatedAlternatives[altIndex][field] = value;
+    setAlternatives(updatedAlternatives);
+  };
+
+  const updateAlternativeValue = (altIndex, critIndex, value) => {
+    const updatedAlternatives = [...alternatives];
+    updatedAlternatives[altIndex].values[critIndex] = value;
+    setAlternatives(updatedAlternatives);
+  };
+
   const removeAlternative = (index) => {
     setAlternatives(alternatives.filter((_, i) => i !== index));
   };
 
+  const calculateResults = () => {
+    if (method === "SAW") {
+      const normalized = alternatives.map(alt => ({
+        name: alt.name,
+        score: criteria.reduce((sum, crit, i) => {
+          const value = parseFloat(alt.values[i]) || 0;
+          return sum + value * parseFloat(crit.weight || 0);
+        }, 0)
+      }));
+
+      normalized.sort((a, b) => b.score - a.score);
+      setResults(normalized);
+    }
+
+    if (method === "TOPSIS") {
+      const idealBest = criteria.map((_, i) => Math.max(...alternatives.map(a => parseFloat(a.values[i]) || 0)));
+      const idealWorst = criteria.map((_, i) => Math.min(...alternatives.map(a => parseFloat(a.values[i]) || 0)));
+
+      const scores = alternatives.map(alt => ({
+        name: alt.name,
+        score: criteria.reduce((sum, _, i) => {
+          const value = parseFloat(alt.values[i]) || 0;
+          const bestDiff = Math.pow(value - idealBest[i], 2);
+          const worstDiff = Math.pow(value - idealWorst[i], 2);
+          return sum + worstDiff / (bestDiff + worstDiff);
+        }, 0)
+      }));
+
+      scores.sort((a, b) => b.score - a.score);
+      setResults(scores);
+    }
+
+    if (method === "WP") {
+      const weightedProducts = alternatives.map(alt => ({
+        name: alt.name,
+        score: criteria.reduce((product, crit, i) => {
+          const value = parseFloat(alt.values[i]) || 1;
+          return product * Math.pow(value, parseFloat(crit.weight || 0));
+        }, 1)
+      }));
+
+      weightedProducts.sort((a, b) => b.score - a.score);
+      setResults(weightedProducts);
+    }
+  };
+
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        backgroundImage: "url('/dss-background.jpg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        paddingTop: "40px",
-      }}
-    >
-      {/* ✅ Header Section (Restored Full Username & About Button) */}
-      <Box
-        sx={{
-          width: "100%",
-          backgroundColor: "rgba(0, 0, 0, 0.6)",
-          color: "white",
-          display: "flex",
-          justifyContent: "flex-end",
-          alignItems: "center",
-          padding: "10px 20px",
-        }}
-      >
+    <Box sx={{ minHeight: "100vh", backgroundImage: "url('/dss-background.jpg')", backgroundSize: "cover" }}>
+      
+      {/* Header (Username, About, Logout) */}
+      <Box sx={{ width: "100%", backgroundColor: "rgba(0, 0, 0, 0.6)", color: "white", display: "flex", justifyContent: "flex-end", alignItems: "center", padding: "10px 20px" }}>
         {user && (
           <>
-            <Typography
-              variant="body1"
-              onClick={handleAboutOpen}
-              sx={{ fontWeight: "bold", textTransform: "none", marginRight: 2, cursor: "pointer" }}
-            >
+            <Typography variant="body1" onClick={handleAboutOpen} sx={{ fontWeight: "bold", textTransform: "none", marginRight: 2, cursor: "pointer" }}>
               About
             </Typography>
 
@@ -134,7 +174,7 @@ export default function HomePage() {
         )}
       </Box>
 
-      {/* ✅ About Dialog */}
+      {/* About Dialog */}
       <Dialog open={aboutOpen} onClose={handleAboutClose}>
         <DialogTitle>About DSS Project MMI</DialogTitle>
         <DialogContent>
@@ -153,69 +193,23 @@ export default function HomePage() {
         </DialogActions>
       </Dialog>
 
+      {/* Main Content */}
       <Container sx={{ backgroundColor: "white", width: "70%", padding: "2rem", borderRadius: "10px" }}>
         <Typography variant="h4" sx={{ textAlign: "center", fontWeight: "bold", mb: 2 }}>
           Decision Support System Framework
         </Typography>
 
         {/* DSS Method Selection */}
-        <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
-          Decision Support Method
-        </Typography>
+        <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>Decision Support Method</Typography>
         <FormControl fullWidth sx={{ mb: 2 }}>
           <Select value={method} onChange={(e) => setMethod(e.target.value)}>
-            <MenuItem value="SAW">Simple Additive Weighting (SAW)</MenuItem>
-            <MenuItem value="TOPSIS">Technique for Order Preference by Similarity to Ideal Solution (TOPSIS)</MenuItem>
-            <MenuItem value="WP">Weighted Product Model (WP)</MenuItem>
+            <MenuItem value="SAW">SAW</MenuItem>
+            <MenuItem value="TOPSIS">TOPSIS</MenuItem>
+            <MenuItem value="WP">WP</MenuItem>
           </Select>
         </FormControl>
 
-        {/* ✅ Criteria Section */}
-        <Typography variant="h6">Criteria</Typography>
-        {criteria.map((c, index) => (
-          <Box key={index} sx={{ display: "flex", gap: 2, mb: 1 }}>
-            <TextField fullWidth label="Criteria Name" value={c.name} />
-            <Select value={c.type}>
-              <MenuItem value="Benefit">Benefit</MenuItem>
-              <MenuItem value="Cost">Cost</MenuItem>
-            </Select>
-            <TextField type="number" label="Weight" value={c.weight} />
-            <IconButton color="error" onClick={() => removeCriterion(index)}>
-              <DeleteIcon />
-            </IconButton>
-          </Box>
-        ))}
-        <Button startIcon={<AddIcon />} onClick={addCriterion}>Add Criteria</Button>
-
-        {/* ✅ Alternatives Section */}
-        <Typography variant="h6" sx={{ mt: 3 }}>Alternatives</Typography>
-        <Button startIcon={<AddIcon />} sx={{ mb: 2 }} onClick={addAlternative}>Add Alternative</Button>
-
-        <TableContainer component={Paper} sx={{ mb: 2 }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Alternative Name</TableCell>
-                {criteria.map((c, index) => <TableCell key={index}>{c.name || `Criteria ${index + 1}`}</TableCell>)}
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {alternatives.map((alt, altIndex) => (
-                <TableRow key={altIndex}>
-                  <TableCell><TextField fullWidth value={alt.name} /></TableCell>
-                  {criteria.map((_, critIndex) => <TableCell key={critIndex}><TextField type="number" /></TableCell>)}
-                  <TableCell><IconButton color="error" onClick={() => removeAlternative(altIndex)}><DeleteIcon /></IconButton></TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-
-        {/* ✅ Calculate Results Button Restored */}
-        <Button fullWidth variant="contained" startIcon={<CalculateIcon />}>
-          Calculate Results
-        </Button>
+        <Button fullWidth variant="contained" startIcon={<CalculateIcon />} onClick={calculateResults}>Calculate Results</Button>
       </Container>
     </Box>
   );
