@@ -11,6 +11,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CalculateIcon from "@mui/icons-material/Calculate";
+import HistoryIcon from "@mui/icons-material/History";
 
 export default function HomePage() {
   const [user, setUser] = useState(null);
@@ -268,13 +269,14 @@ export default function HomePage() {
         }}
       >
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-          <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+          <Typography variant="h5" sx={{ fontWeight: "bold" }}>
             Decision Support System Framework
           </Typography>
-          <Box>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
             <Button
               variant={showCalculator ? "contained" : "outlined"}
               onClick={() => setShowCalculator(true)}
+              startIcon={<CalculateIcon />}
               sx={{ mr: 1 }}
             >
               Calculator
@@ -282,6 +284,7 @@ export default function HomePage() {
             <Button
               variant={!showCalculator ? "contained" : "outlined"}
               onClick={() => setShowCalculator(false)}
+              startIcon={<HistoryIcon />}
             >
               History
             </Button>
@@ -443,7 +446,7 @@ export default function HomePage() {
             )}
           </>
         ) : (
-          <Typography variant="h4">Calculation History</Typography>
+          <Typography variant="h5">Calculation History</Typography>
         )}
       </Container>
     </Box>
