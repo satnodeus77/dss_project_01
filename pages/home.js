@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import {
-  Box, Container, Typography, IconButton, Menu, MenuItem, Avatar, Button
+  Box, Container, Typography, IconButton, Menu, MenuItem, Avatar, Button, Dialog, DialogTitle, DialogContent, DialogActions
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import HistoryIcon from "@mui/icons-material/History";
 import { auth } from "../lib/firebase";
 
-export default function HistoryPage() {
+export default function HomePage() {
   const [user, setUser] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
-  //
+  const [aboutOpen, setAboutOpen] = useState(false);
 
   const router = useRouter();
 
@@ -38,6 +38,14 @@ export default function HistoryPage() {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleAboutOpen = () => {
+    setAboutOpen(true);
+  };
+
+  const handleAboutClose = () => {
+    setAboutOpen(false);
   };
 
   return (
@@ -105,7 +113,7 @@ export default function HistoryPage() {
         )}
       </Box>
 
-      {/* Main History Section */}
+      {/* Main DSS Section */}
       <Container
         sx={{
           backgroundColor: "white",
@@ -118,10 +126,20 @@ export default function HistoryPage() {
         }}
       >
         <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2 }}>
-          History Page
+          Welcome to DSS Project MMI
         </Typography>
         <Typography variant="body1" sx={{ mb: 2 }}>
-          This page will display the history of calculations.
+          This project is developed to provide a framework for Decision Support Systems.
+        </Typography>
+        <Typography variant="body1" sx={{ mb: 2 }}>
+          Contributors:
+        </Typography>
+        <Typography variant="body1">
+          24/546050/PPA/06833 - Aziz Hendra Atmadja
+          <br />
+          24/548101/PPA/06919 - Marta Zuriadi
+          <br />
+          24/548140/PPA/06921 - Silvanus Satno Nugraha
         </Typography>
       </Container>
     </Box>
