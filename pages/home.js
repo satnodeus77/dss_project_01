@@ -158,10 +158,10 @@ export default function HomePage() {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        paddingTop: "40px",
+        paddingTop: "0px",
       }}
     >
-      {/* Header Section (Not Sticky) */}
+      {/* Header Section (Sticky) */}
       <Box
         sx={{
           width: "100%",
@@ -171,6 +171,9 @@ export default function HomePage() {
           justifyContent: "flex-end",
           alignItems: "center",
           padding: "10px 20px",
+          position: "sticky",
+          top: 0,
+          zIndex: 1000,
         }}
       >
         {user && (
