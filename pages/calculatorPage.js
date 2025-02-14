@@ -393,23 +393,25 @@ export default function CalculatorPage() {
             </Table>
           </TableContainer>
 
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setAlternatives([...alternatives, { name: "", values: Array(criteria.length).fill(""), active: true }])}
-            sx={{ mb: 2 }}
-          >
-            Add Alternative
-          </Button>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setAlternatives([...alternatives, { name: "", values: Array(criteria.length).fill(""), active: true }])}
+              sx={{ mb: 2 }}
+            >
+              Add Alternative
+            </Button>
 
-          <Button
-            variant="contained"
-            startIcon={<CalculateIcon />}
-            onClick={calculateResults}
-            sx={{ mb: 2 }}
-          >
-            Calculate
-          </Button>
+            <Button
+              variant="contained"
+              startIcon={<CalculateIcon />}
+              onClick={calculateResults}
+              sx={{ mb: 2, backgroundColor: "#4caf50", '&:hover': { backgroundColor: "#45a049" } }}
+            >
+              Calculate
+            </Button>
+          </Box>
 
           {results.length > 0 && (
             <TableContainer component={Paper} sx={{ mt: 2 }}>
