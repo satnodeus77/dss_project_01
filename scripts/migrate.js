@@ -16,8 +16,6 @@ const runMigrations = async () => {
     console.log("✅ Migration successful: Users table is ready.");
   } catch (error) {
     console.error("❌ Error creating users table:", error);
-  } finally {
-    pool.end();
   }
 };
 
