@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AddIcon from "@mui/icons-material/Add";
-import DeleteIcon from "@mui/icons-material/Delete"; 
+import DeleteIcon from "@mui/icons-material/Delete";
 import CalculateIcon from "@mui/icons-material/Calculate";
 
 export default function HomePage() {
@@ -65,13 +65,11 @@ export default function HomePage() {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        paddingTop: "80px", // ✅ Lowered content
+        paddingTop: "40px",
       }}
     >
-      {/* Sticky Header with Username & About Button */}
+      {/* Header Section (Not Sticky) */}
       <Box sx={{
-        position: "fixed",
-        top: 0,
         width: "100%",
         backgroundColor: "rgba(0, 0, 0, 0.6)", 
         color: "white",
@@ -79,7 +77,6 @@ export default function HomePage() {
         justifyContent: "flex-end",
         alignItems: "center",
         padding: "10px 20px",
-        zIndex: 1000, 
       }}>
         {user && (
           <>
@@ -144,9 +141,11 @@ export default function HomePage() {
           Decision Support System Framework
         </Typography>
 
-        {/* DSS Method Selection */}
+        {/* DSS Method Selection - Label Fixed */}
+        <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
+          Decision Support Method
+        </Typography>
         <FormControl fullWidth sx={{ mb: 2 }}>
-          <InputLabel>Decision Support Method</InputLabel>
           <Select value={method} onChange={(e) => setMethod(e.target.value)}>
             <MenuItem value="SAW">Simple Additive Weighting (SAW)</MenuItem>
             <MenuItem value="TOPSIS">Technique for Order Preference by Similarity to Ideal Solution (TOPSIS)</MenuItem>
