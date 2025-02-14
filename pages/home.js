@@ -11,6 +11,8 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CalculateIcon from "@mui/icons-material/Calculate";
+import ToggleOnIcon from '@mui/icons-material/ToggleOn';
+import ToggleOffIcon from '@mui/icons-material/ToggleOff';
 
 export default function HomePage() {
   const [user, setUser] = useState(null);
@@ -320,6 +322,9 @@ export default function HomePage() {
             <IconButton color="error" onClick={() => setCriteria(criteria.filter((_, i) => i !== index))}>
               <DeleteIcon />
             </IconButton>
+            <IconButton onClick={() => toggleCriteriaActive(index)}>
+              {c.active ? <ToggleOnIcon color="primary" /> : <ToggleOffIcon color="disabled" />}
+            </IconButton>
           </Box>
         ))}
         <Button startIcon={<AddIcon />} onClick={() => setCriteria([...criteria, { name: "", type: "Benefit", weight: "", active: true }])}>Add Criteria</Button>
@@ -378,6 +383,9 @@ export default function HomePage() {
                   <TableCell>
                     <IconButton color="error" onClick={() => removeAlternative(altIndex)}>
                       <DeleteIcon />
+                    </IconButton>
+                    <IconButton onClick={() => toggleAlternativeActive(altIndex)}>
+                      {alt.active ? <ToggleOnIcon color="primary" /> : <ToggleOffIcon color="disabled" />}
                     </IconButton>
                   </TableCell>
                 </TableRow>
