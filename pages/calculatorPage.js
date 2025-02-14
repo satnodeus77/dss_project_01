@@ -226,6 +226,47 @@ export default function CalculatorPage() {
     }
   };
 
+
+  const handleSaveCalculation = async () => {
+    if (!user) return;
+  
+    const userId = user.uid;
+    const methodShortName = method;
+    const criteriaToSave = criteria.map(c => ({ name: c.name, type: c.type, weight: c.weight }));
+    const alternativesToSave = alternatives.map(a => ({ name: a.name, values: a.values }));
+    const rankResultsToSave = results.map(r => ({ name: r.name, score: r.score, rank: r.rank }));
+  
+    try {
+      const response = await fetch('/api/saveCalculation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          method: methodShortName,
+          criteria: criteriaToSave,
+          alternatives: alternativesToSave,
+          rankResults: rankResultsToSave,
+        }),
+      });
+  
+      if (response.ok) {
+        setSnackbarMessage('Calculation saved successfully.');
+        setSnackbarSeverity('success');
+      } else {
+        const errorData = await response.json();
+        setSnackbarMessage(`Failed to save calculation: ${errorData.details}`);
+        setSnackbarSeverity('error');
+      }
+    } catch (error) {
+      setSnackbarMessage(`Error saving calculation: ${error.message}`);
+      setSnackbarSeverity('error');
+    } finally {
+      setSnackbarOpen(true);
+    }
+  };
+
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
@@ -504,7 +545,7 @@ export default function CalculatorPage() {
                 <Button
                   variant="contained"
                   startIcon={<SaveIcon />}
-                  onClick={handleSaveResults}
+                  onClick={handleSaveCalculation}
                   sx={{ backgroundColor: "#2196f3", '&:hover': { backgroundColor: "#1976d2" } }}
                 >
                   Save result calculation
