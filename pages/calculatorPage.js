@@ -183,9 +183,38 @@ export default function CalculatorPage() {
     return scores.sort((a, b) => b.score - a.score);
   };
 
-  const handleSaveResults = () => {
-    // Implement the save functionality here
-    console.log("Results saved:", results);
+  const handleSaveResults = async () => {
+    if (!user) return;
+
+    const userId = user.uid;
+    const methodShortName = method;
+    const resultsToSave = results.map((result, index) => ({
+      alternativeId: index + 1, // Assuming alternativeId is the index + 1
+      score: result.score,
+      rank: index + 1,
+    }));
+
+    try {
+      const response = await fetch('/api/saveResults', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          method: methodShortName,
+          results: resultsToSave,
+        }),
+      });
+
+      if (response.ok) {
+        console.log('Results saved successfully.');
+      } else {
+        console.error('Failed to save results.');
+      }
+    } catch (error) {
+      console.error('Error saving results:', error);
+    }
   };
 
   return (
