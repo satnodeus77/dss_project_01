@@ -174,25 +174,6 @@ export default function HomePage() {
         )}
       </Box>
 
-      {/* About Dialog */}
-      <Dialog open={aboutOpen} onClose={handleAboutClose}>
-        <DialogTitle>About DSS Project MMI</DialogTitle>
-        <DialogContent>
-          <Typography>
-            Welcome to DSS Project MMI
-            <br />
-            24/546050/PPA/06833 - Aziz Hendra Atmadja
-            <br />
-            24/548101/PPA/06919 - Marta Zuriadi
-            <br />
-            24/548140/PPA/06921 - Silvanus Satno Nugraha
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleAboutClose}>Close</Button>
-        </DialogActions>
-      </Dialog>
-
       {/* Main Content */}
       <Container sx={{ backgroundColor: "white", width: "70%", padding: "2rem", borderRadius: "10px" }}>
         <Typography variant="h4" sx={{ textAlign: "center", fontWeight: "bold", mb: 2 }}>
@@ -210,6 +191,29 @@ export default function HomePage() {
         </FormControl>
 
         <Button fullWidth variant="contained" startIcon={<CalculateIcon />} onClick={calculateResults}>Calculate Results</Button>
+
+        {results.length > 0 && (
+          <TableContainer component={Paper} sx={{ mt: 3 }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Rank</TableCell>
+                  <TableCell>Alternative</TableCell>
+                  <TableCell>Score</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {results.map((res, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{res.name}</TableCell>
+                    <TableCell>{res.score.toFixed(4)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
       </Container>
     </Box>
   );
