@@ -5,14 +5,12 @@ import {
   Box, Container, Typography, IconButton, Menu, MenuItem, Avatar,
   Select, TextField, Button, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, FormControl, Paper, Dialog, DialogTitle,
-  DialogContent, DialogActions
+  DialogContent, DialogActions, Checkbox
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CalculateIcon from "@mui/icons-material/Calculate";
-import ToggleOnIcon from '@mui/icons-material/ToggleOn';
-import ToggleOffIcon from '@mui/icons-material/ToggleOff';
 
 export default function HomePage() {
   const [user, setUser] = useState(null);
@@ -318,9 +316,11 @@ export default function HomePage() {
             <IconButton color="error" onClick={() => setCriteria(criteria.filter((_, i) => i !== index))}>
               <DeleteIcon />
             </IconButton>
-            <IconButton onClick={() => toggleCriteriaActive(index)}>
-              {c.active ? <ToggleOnIcon color="primary" /> : <ToggleOffIcon color="disabled" />}
-            </IconButton>
+            <Checkbox
+              checked={c.active}
+              onChange={() => toggleCriteriaActive(index)}
+              color="primary"
+            />
           </Box>
         ))}
         <Button startIcon={<AddIcon />} onClick={() => setCriteria([...criteria, { name: "", type: "Benefit", weight: "", active: true }])}>Add Criteria</Button>
@@ -373,9 +373,11 @@ export default function HomePage() {
                     <IconButton color="error" onClick={() => removeAlternative(altIndex)}>
                       <DeleteIcon />
                     </IconButton>
-                    <IconButton onClick={() => toggleAlternativeActive(altIndex)}>
-                      {alt.active ? <ToggleOnIcon color="primary" /> : <ToggleOffIcon color="disabled" />}
-                    </IconButton>
+                    <Checkbox
+                      checked={alt.active}
+                      onChange={() => toggleAlternativeActive(altIndex)}
+                      color="primary"
+                    />
                   </TableCell>
                 </TableRow>
               ))}
