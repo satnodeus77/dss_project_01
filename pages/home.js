@@ -75,6 +75,26 @@ export default function HomePage() {
       >
         {user && (
           <Box sx={{ display: "flex", alignItems: "center" }}>
+            {/* Calculator Button */}
+            <Button
+              variant="text"
+              startIcon={<CalculateIcon sx={{ color: "gray" }} />}
+              sx={{ color: "white", textTransform: "none", fontWeight: "bold", marginRight: 2 }}
+              onClick={() => router.push('/CalculatorPage')}
+            >
+              Calculator
+            </Button>
+
+            {/* History Button */}
+            <Button
+              variant="text"
+              startIcon={<HistoryIcon sx={{ color: "gray" }} />}
+              sx={{ color: "white", textTransform: "none", fontWeight: "bold", marginRight: 2 }}
+              onClick={() => router.push('/HistoryPage')}
+            >
+              History
+            </Button>
+
             {/* User Info */}
             <Typography variant="body1" sx={{ fontWeight: "bold", marginRight: 2 }}>
               {user.displayName}
@@ -89,24 +109,6 @@ export default function HomePage() {
                 Logout
               </MenuItem>
             </Menu>
-
-            {/* Calculator and History Buttons */}
-            <Button
-              variant="contained"
-              startIcon={<CalculateIcon />}
-              sx={{ ml: 2 }}
-              onClick={() => router.push('/CalculatorPage')}
-            >
-              Calculator
-            </Button>
-            <Button
-              variant="outlined"
-              startIcon={<HistoryIcon />}
-              sx={{ ml: 2 }}
-              onClick={() => router.push('/HistoryPage')}
-            >
-              History
-            </Button>
           </Box>
         )}
       </Box>
