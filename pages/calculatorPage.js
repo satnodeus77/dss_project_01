@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import {
   Box, Container, Typography, IconButton, Menu, MenuItem, Avatar,
   Select, TextField, Button, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, FormControl, Paper, Checkbox
+  TableHead, TableRow, FormControl, Paper, Checkbox, Snackbar, Alert
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AddIcon from "@mui/icons-material/Add";
@@ -20,6 +20,9 @@ export default function CalculatorPage() {
   const [criteria, setCriteria] = useState([{ name: "", type: "Benefit", weight: "", active: true }]);
   const [alternatives, setAlternatives] = useState([]);
   const [results, setResults] = useState([]);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
   const router = useRouter();
 
@@ -208,13 +211,22 @@ export default function CalculatorPage() {
       });
 
       if (response.ok) {
-        console.log('Results saved successfully.');
+        setSnackbarMessage('Results saved successfully.');
+        setSnackbarSeverity('success');
       } else {
-        console.error('Failed to save results.');
+        setSnackbarMessage('Failed to save results.');
+        setSnackbarSeverity('error');
       }
     } catch (error) {
-      console.error('Error saving results:', error);
+      setSnackbarMessage('Error saving results.');
+      setSnackbarSeverity('error');
+    } finally {
+      setSnackbarOpen(true);
     }
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
   return (
@@ -501,6 +513,16 @@ export default function CalculatorPage() {
           )}
         </Box>
       </Container>
+
+      <Snackbar
+  open={snackbarOpen}
+  autoHideDuration={6000}
+  onClose={() => setSnackbarOpen(false)}
+>
+  <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+    {snackbarMessage}
+  </Alert>
+</Snackbar>
     </Box>
   );
 }
