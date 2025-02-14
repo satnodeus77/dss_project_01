@@ -188,7 +188,7 @@ export default function CalculatorPage() {
 
   const handleSaveResults = async () => {
     if (!user) return;
-
+  
     const userId = user.uid;
     const methodShortName = method;
     const resultsToSave = results.map((result, index) => ({
@@ -196,7 +196,7 @@ export default function CalculatorPage() {
       score: result.score,
       rank: index + 1,
     }));
-
+  
     try {
       const response = await fetch('/api/saveResults', {
         method: 'POST',
@@ -209,16 +209,17 @@ export default function CalculatorPage() {
           results: resultsToSave,
         }),
       });
-
+  
       if (response.ok) {
         setSnackbarMessage('Results saved successfully.');
         setSnackbarSeverity('success');
       } else {
-        setSnackbarMessage('Failed to save results.');
+        const errorData = await response.json();
+        setSnackbarMessage(`Failed to save results: ${errorData.details}`);
         setSnackbarSeverity('error');
       }
     } catch (error) {
-      setSnackbarMessage('Error saving results.');
+      setSnackbarMessage(`Error saving results: ${error.message}`);
       setSnackbarSeverity('error');
     } finally {
       setSnackbarOpen(true);

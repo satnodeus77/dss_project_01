@@ -5,13 +5,18 @@ export default async function handler(req, res) {
     const { userId, method, results } = req.body;
 
     try {
+      console.log('Received request to save results:', { userId, method, results });
+
       const methodResult = await pool.query('SELECT id FROM methods WHERE short_name = $1', [method]);
       if (methodResult.rows.length === 0) {
         throw new Error(`Method not found for short_name: ${method}`);
       }
       const methodId = methodResult.rows[0].id;
 
+      console.log('Method ID:', methodId);
+
       for (const result of results) {
+        console.log('Saving result:', result);
         await pool.query(
           'INSERT INTO results (user_id, method_id, alternative_id, score, rank) VALUES ($1, $2, $3, $4, $5)',
           [userId, methodId, result.alternativeId, result.score, result.rank]
