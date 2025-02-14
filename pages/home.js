@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import {
   Box, Container, Typography, IconButton, Menu, MenuItem, Avatar,
   Select, TextField, Button, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, FormControl, InputLabel, Paper, Dialog, DialogTitle,
+  TableHead, TableRow, FormControl, Paper, Dialog, DialogTitle,
   DialogContent, DialogActions
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -69,21 +69,32 @@ export default function HomePage() {
       }}
     >
       {/* Header Section (Not Sticky) */}
-      <Box sx={{
-        width: "100%",
-        backgroundColor: "rgba(0, 0, 0, 0.6)", 
-        color: "white",
-        display: "flex",
-        justifyContent: "flex-end",
-        alignItems: "center",
-        padding: "10px 20px",
-      }}>
+      <Box
+        sx={{
+          width: "100%",
+          backgroundColor: "rgba(0, 0, 0, 0.6)",
+          color: "white",
+          display: "flex",
+          justifyContent: "flex-end",
+          alignItems: "center",
+          padding: "10px 20px",
+        }}
+      >
         {user && (
           <>
-            {/* About Button */}
-            <Button color="inherit" onClick={handleAboutOpen} sx={{ fontWeight: "bold", textTransform: "none", marginRight: 2 }}>
+            {/* About Button (Same font size as username) */}
+            <Typography
+              variant="body1"
+              onClick={handleAboutOpen}
+              sx={{
+                fontWeight: "bold",
+                textTransform: "none",
+                marginRight: 2,
+                cursor: "pointer",
+              }}
+            >
               About
-            </Button>
+            </Typography>
 
             {/* User Info */}
             <Typography variant="body1" sx={{ fontWeight: "bold", marginRight: 2 }}>
@@ -198,9 +209,9 @@ export default function HomePage() {
             <TableBody>
               {alternatives.map((alt, altIndex) => (
                 <TableRow key={altIndex}>
-                  <TableCell><TextField fullWidth value={alt.name} onChange={(e) => updateAlternativeName(altIndex, e.target.value)} /></TableCell>
+                  <TableCell><TextField fullWidth value={alt.name} /></TableCell>
                   {criteria.map((_, critIndex) => <TableCell key={critIndex}><TextField type="number" /></TableCell>)}
-                  <TableCell><IconButton color="error" onClick={() => setAlternatives(alternatives.filter((_, i) => i !== altIndex))}><DeleteIcon /></IconButton></TableCell>
+                  <TableCell><IconButton color="error"><DeleteIcon /></IconButton></TableCell>
                 </TableRow>
               ))}
             </TableBody>
