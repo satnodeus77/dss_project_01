@@ -182,6 +182,17 @@ export default function CalculatorPage() {
       return { name: alt.name, score: parseFloat(score.toFixed(3)) };
     });
 
+    // Step 3: Count the Vector Value to Get Preference Rank
+    const totalVectorValue = scores.reduce((acc, alt) => acc + alt.score, 0);
+    const preferenceScores = scores.map((alt) => ({
+      ...alt,
+      preferenceScore: parseFloat((alt.score / totalVectorValue).toFixed(3))
+    }));
+
+    // Step 4: Rank the Alternatives
+    return preferenceScores.sort((a, b) => b.preferenceScore - a.preferenceScore);
+  };
+
     // Step 3: Rank the Alternatives
     return scores.sort((a, b) => b.score - a.score);
   };
