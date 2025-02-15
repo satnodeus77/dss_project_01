@@ -166,14 +166,14 @@ export default function HistoryCalculationPage() {
                     <TableCell>
                       {calculation.alternatives.map((alternative, index) => (
                         <div key={index}>
-                          <strong>{alternative.name}</strong>: {alternative.value} (Score: {alternative.score})
+                          <strong>{alternative.name}</strong>: {alternative.value} (Weight: {alternative.score})
                         </div>
                       ))}
                     </TableCell>
                     <TableCell>
                       {calculation.rank_results.map((result, index) => (
                         <div key={index}>
-                          <strong>{result.name}</strong>: Rank {result.rank}
+                          <strong>{result.name}</strong>: {result.rank}
                         </div>
                       ))}
                     </TableCell>
