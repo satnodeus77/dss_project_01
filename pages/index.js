@@ -20,7 +20,23 @@ export default function Home() {
   const loginWithGoogle = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
-      setUser(result.user);
+      const user = result.user;
+      setUser(user);
+
+      // Add user to the database
+      await fetch('/api/addUser', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          uid: user.uid,
+          displayName: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+        }),
+      });
+
       router.push("/home"); // ✅ Redirect after login
     } catch (error) {
       console.error("Login Error", error);
