@@ -6,6 +6,7 @@ import {
 import LogoutIcon from "@mui/icons-material/Logout";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import HistoryIcon from "@mui/icons-material/History";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { auth } from "../lib/firebase";
 
 export default function HistoryCalculationPage() {
@@ -39,6 +40,21 @@ export default function HistoryCalculationPage() {
       }
     } catch (error) {
       console.error('Error fetching calculations:', error);
+    }
+  };
+
+  const handleDelete = async (calculationId) => {
+    try {
+      const response = await fetch(`/api/deleteCalculation?id=${calculationId}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        setCalculations(calculations.filter(calculation => calculation.id !== calculationId));
+      } else {
+        console.error('Failed to delete calculation');
+      }
+    } catch (error) {
+      console.error('Error deleting calculation:', error);
     }
   };
 
@@ -149,6 +165,7 @@ export default function HistoryCalculationPage() {
                   <TableCell>Criteria</TableCell>
                   <TableCell>Alternatives</TableCell>
                   <TableCell>Rank Results</TableCell>
+                  <TableCell>Action</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -176,9 +193,14 @@ export default function HistoryCalculationPage() {
                     <TableCell>
                       {calculation.rank_results.map((result, index) => (
                         <div key={index}>
-                          <strong>{result.name} : </strong> {result.score}
+                          <strong>{result.name}</strong>: Rank {result.rank}, Score {result.score}
                         </div>
                       ))}
+                    </TableCell>
+                    <TableCell>
+                      <IconButton onClick={() => handleDelete(calculation.id)}>
+                        <DeleteIcon />
+                      </IconButton>
                     </TableCell>
                   </TableRow>
                 ))}
