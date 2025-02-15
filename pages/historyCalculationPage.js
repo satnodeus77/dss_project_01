@@ -166,14 +166,17 @@ export default function HistoryCalculationPage() {
                     <TableCell>
                       {calculation.alternatives.map((alternative, index) => (
                         <div key={index}>
-                          <strong>{alternative.name}</strong>: {alternative.value} (Score: {alternative.score})
+                          <strong>{alternative.name}</strong>:
+                          {Object.entries(alternative.values).map(([key, value]) => (
+                            <div key={key}>{key}: {value}</div>
+                          ))}
                         </div>
                       ))}
                     </TableCell>
                     <TableCell>
                       {calculation.rank_results.map((result, index) => (
                         <div key={index}>
-                          <strong>{result.name}</strong>: {result.rank}
+                          <strong>{result.name}</strong>: Rank {result.rank}
                         </div>
                       ))}
                     </TableCell>
