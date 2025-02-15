@@ -184,12 +184,7 @@ export default function HistoryCalculationPage() {
                       {calculation.alternatives.map((alternative, index) => (
                         <div key={index}>
                           <strong>{alternative.name}</strong>:
-                          {Object.entries(alternative.values).map(([key, value]) => {
-                            const criterion = calculation.criteria.find(c => c.id === key);
-                            return (
-                              <div key={key}>{criterion ? criterion.name : key}: {value}</div>
-                            );
-                          })}
+                          {Object.values(alternative.values).join(', ')}
                         </div>
                       ))}
                     </TableCell>
