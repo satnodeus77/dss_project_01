@@ -166,7 +166,7 @@ export default function HistoryCalculationPage() {
                     <TableCell>
                       {calculation.alternatives.map((alternative, index) => (
                         <div key={index}>
-                          <strong>{alternative.name}</strong>: {alternative.value} (Weight: {alternative.score})
+                          <strong>{alternative.name}</strong>: {alternative.value} (Score: {alternative.score})
                         </div>
                       ))}
                     </TableCell>
