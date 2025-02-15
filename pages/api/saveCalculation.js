@@ -1,4 +1,4 @@
-import pool from '../../lib/db';
+import { pool } from '../../lib/db';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
@@ -6,7 +6,7 @@ export default async function handler(req, res) {
 
     try {
       // Verify that the userId exists in the users table
-      const userCheck = await pool.query('SELECT id FROM users WHERE id = $1', [userId]);
+      const userCheck = await pool.query('SELECT uid FROM users WHERE uid = $1', [userId]);
       if (userCheck.rowCount === 0) {
         return res.status(400).json({ error: 'Invalid user ID.' });
       }
