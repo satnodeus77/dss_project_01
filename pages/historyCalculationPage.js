@@ -158,17 +158,23 @@ export default function HistoryCalculationPage() {
                     <TableCell>{calculation.method}</TableCell>
                     <TableCell>
                       {calculation.criteria.map((criterion, index) => (
-                        <div key={index}>{criterion.name}: {criterion.value}</div>
+                        <div key={index}>
+                          <strong>{criterion.name}</strong>: {criterion.value} ({criterion.type}, Weight: {criterion.weight})
+                        </div>
                       ))}
                     </TableCell>
                     <TableCell>
                       {calculation.alternatives.map((alternative, index) => (
-                        <div key={index}>{alternative.name}: {alternative.value}</div>
+                        <div key={index}>
+                          <strong>{alternative.name}</strong>: {alternative.value} (Score: {alternative.score})
+                        </div>
                       ))}
                     </TableCell>
                     <TableCell>
                       {calculation.rank_results.map((result, index) => (
-                        <div key={index}>{result.name}: {result.rank}</div>
+                        <div key={index}>
+                          <strong>{result.name}</strong>: Rank {result.rank}
+                        </div>
                       ))}
                     </TableCell>
                   </TableRow>
