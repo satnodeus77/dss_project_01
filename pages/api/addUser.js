@@ -4,17 +4,21 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     const { uid, displayName, email, photoURL } = req.body;
 
+    console.log(`Received request to add user with UID: ${uid}`);
+
     try {
       // Check if the user already exists
-      const userCheck = await pool.query('SELECT id FROM users WHERE id = $1', [uid]);
+      const userCheck = await pool.query('SELECT uid FROM users WHERE uid = $1', [uid]);
       if (userCheck.rowCount === 0) {
         // Insert the new user
-        await pool.query(
-          'INSERT INTO users (id, display_name, email, photo_url) VALUES ($1, $2, $3, $4)',
+        const insertResult = await pool.query(
+          'INSERT INTO users (uid, name, email, photo_url) VALUES ($1, $2, $3, $4)',
           [uid, displayName, email, photoURL]
         );
+        console.log(`User with UID: ${uid} added successfully`);
         res.status(200).json({ message: 'User added successfully' });
       } else {
+        console.log(`User with UID: ${uid} already exists`);
         res.status(200).json({ message: 'User already exists' });
       }
     } catch (error) {
