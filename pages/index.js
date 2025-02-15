@@ -24,16 +24,15 @@ export default function Home() {
       setUser(user);
 
       // Add user to the database
-      await fetch('/api/addUser', {
+      await fetch('/api/saveUser', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           uid: user.uid,
-          displayName: user.displayName,
+          name: user.displayName,
           email: user.email,
-          photoURL: user.photoURL,
         }),
       });
 
