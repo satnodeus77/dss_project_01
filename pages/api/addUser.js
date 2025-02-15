@@ -9,6 +9,8 @@ export default async function handler(req, res) {
     try {
       // Check if the user already exists
       const userCheck = await pool.query('SELECT uid FROM users WHERE uid = $1', [uid]);
+      console.log(`User check result: ${JSON.stringify(userCheck.rows)}`);
+      
       if (userCheck.rowCount === 0) {
         // Insert the new user
         const insertResult = await pool.query(
