@@ -51,7 +51,8 @@ export default function HistoryCalculationPage() {
       if (response.ok) {
         setCalculations(calculations.filter(calculation => calculation.id !== calculationId));
       } else {
-        console.error('Failed to delete calculation');
+        const errorData = await response.json();
+        console.error('Failed to delete calculation:', errorData);
       }
     } catch (error) {
       console.error('Error deleting calculation:', error);
