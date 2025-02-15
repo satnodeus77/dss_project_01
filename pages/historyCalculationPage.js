@@ -140,7 +140,7 @@ export default function HistoryCalculationPage() {
       <Container
         sx={{
           backgroundColor: "white",
-          width: "70%",
+          width: "85%", // Updated width to 85%
           padding: "2rem",
           borderRadius: "10px",
           mt: 4,
