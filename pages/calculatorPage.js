@@ -193,10 +193,6 @@ export default function CalculatorPage() {
     return preferenceScores.sort((a, b) => b.preferenceScore - a.preferenceScore);
   };
 
-    // Step 3: Rank the Alternatives
-    return scores.sort((a, b) => b.score - a.score);
-  };
-
   const handleSaveResults = async () => {
     if (!user) return;
   
