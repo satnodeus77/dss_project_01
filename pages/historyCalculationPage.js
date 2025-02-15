@@ -184,7 +184,7 @@ export default function HistoryCalculationPage() {
                       {calculation.alternatives.map((alternative, index) => (
                         <div key={index}>
                           <strong>{alternative.name}</strong>:
-                          {Object.values(alternative.values).join(', ')}
+                          {Object.values(alternative.values).join('; ')}
                         </div>
                       ))}
                     </TableCell>
