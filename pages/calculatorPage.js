@@ -57,7 +57,9 @@ export default function CalculatorPage() {
 
   const updateAlternativeValue = (altIndex, critIndex, value) => {
     const updatedAlternatives = [...alternatives];
-    updatedAlternatives[altIndex].values[critIndex] = value || "";
+    // Normalize the value by replacing commas with periods
+    const normalizedValue = value.replace(',', '.');
+    updatedAlternatives[altIndex].values[critIndex] = normalizedValue || "";
     setAlternatives(updatedAlternatives);
   };
 
