@@ -82,7 +82,7 @@ export default function HomePage() {
               sx={{ color: "white", textTransform: "none", fontWeight: "bold", fontSize: "1rem", marginRight: 2 }}
               onClick={() => router.push('/calculatorPage')}
             >
-              Calculator
+              SmartChoice DSS
             </Button>
 
             {/* History Button */}

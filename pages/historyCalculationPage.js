@@ -105,7 +105,7 @@ export default function HistoryCalculationPage() {
               sx={{ color: "white", textTransform: "none", fontWeight: "bold", fontSize: "1rem", marginRight: 2 }}
               onClick={() => router.push('/calculatorPage')}
             >
-              Calculator
+              SmartChoice DSS
             </Button>
 
             {/* History Button */}
@@ -191,7 +191,7 @@ export default function HistoryCalculationPage() {
                     <TableCell>
                       {calculation.rank_results.map((result, index) => (
                         <div key={index}>
-                          <strong>{result.name}</strong>: #{index + 1}, Score {result.score}
+                          <strong>#{index + 1} {result.name}</strong>: Score {result.score}
                         </div>
                       ))}
                     </TableCell>
